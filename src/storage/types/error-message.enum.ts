@@ -1,6 +1,6 @@
 export enum ErrorMessage {
   OK = '',
-  WrongUUID = 'Wrong record UUID',
-  RecordNotExist = "Record doesn't exist",
-  WrongPassword = 'Wrong password',
+  WRONG_UUID = 'Wrong record UUID',
+  RECORD_NOT_EXISTS = "Record doesn't exist",
+  BAD_REQUEST = 'Bad request',
 }

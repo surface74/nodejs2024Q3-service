@@ -1,10 +1,6 @@
 import { IUser } from '../entities/user.interface';
 
-export class CreateUserDto implements IUser {
-  id: string;
+export class CreateUserDto implements Pick<IUser, 'login' | 'password'> {
   login: string;
   password: string;
-  version: number;
-  createdAt: number;
-  updatedAt: number;
 }

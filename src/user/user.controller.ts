@@ -14,8 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Response } from 'express';
 
-import { User } from './entities/user.entity';
-import { Result } from 'src/storage/types/result.types';
+import { DbResult } from 'src/storage/types/result.types';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 
 @Controller('user')
@@ -23,8 +22,16 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = this.userService.create(createUserDto);
+    if (result.errorText) {
+      res.status(HttpStatus.BAD_REQUEST);
+      return result.errorText;
+    }
+    return result.data;
   }
 
   @Get()
@@ -37,10 +44,10 @@ export class UserController {
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result: Result = await this.userService.findOne(id);
+    const result: DbResult = await this.userService.findOne(id);
     if (result.isError) {
       switch (result.errorText) {
-        case ErrorMessage.RecordNotExist:
+        case ErrorMessage.RECORD_NOT_EXISTS:
           res.status(HttpStatus.NOT_FOUND);
           break;
         default:

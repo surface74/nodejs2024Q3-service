@@ -1,20 +1,18 @@
 import { ErrorMessage } from './error-message.enum';
 
-export interface IResult {
-  isError?: boolean;
+export interface Result {
   errorText?: ErrorMessage;
   data?: unknown;
 }
 
-export class Result implements IResult {
-  readonly isError: boolean;
+export class DbResult implements Result {
   readonly errorText: ErrorMessage = ErrorMessage.OK;
   readonly data: unknown = null;
 
-  constructor(param: IResult) {
-    this.isError = param.isError ? true : false;
-    this.errorText =
-      param.errorText && param.isError ? param.errorText : ErrorMessage.OK;
+  constructor(param: Result) {
+    if (param.errorText) this.errorText = param.errorText;
     if (param.data) this.data = param.data;
   }
+
+  public isError = () => !!this.errorText;
 }
