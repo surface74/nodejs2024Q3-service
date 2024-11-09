@@ -51,6 +51,9 @@ export class UserController {
         case ErrorMessage.RECORD_NOT_EXISTS:
           res.status(HttpStatus.NOT_FOUND);
           break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
         default:
           res.status(HttpStatus.BAD_REQUEST);
           break;
@@ -62,8 +65,34 @@ export class UserController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdatePasswordDto) {
-    return this.userService.updatePassword(id, updateUserDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result: DbResult = await this.userService.updatePassword(
+      id,
+      updatePasswordDto,
+    );
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.NOT_FOUND);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        case ErrorMessage.BAD_PASSWORD:
+          res.status(HttpStatus.FORBIDDEN);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+
+    return result.data;
   }
 
   @Delete(':id')

@@ -27,7 +27,12 @@ export class UserService {
   }
 
   async findAll() {
-    return new DbResult({ data: [...db.userStorage] });
+    const result = db.userStorage.map((user: User) => {
+      const cloneUser = { ...user };
+      delete cloneUser.password;
+      return cloneUser;
+    });
+    return new DbResult({ data: result });
   }
 
   async findOne(id: string) {
@@ -37,8 +42,11 @@ export class UserService {
       );
 
       if (result.length > 0) {
-        return new DbResult({ data: result[0] });
+        const cloneUser = { ...result[0] };
+        delete cloneUser.password;
+        return new DbResult({ data: cloneUser });
       }
+
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
@@ -64,8 +72,13 @@ export class UserService {
       }
 
       result[0].password = updatePasswordDto.newPassword;
+      result[0].updatedAt = Date.now();
+      result[0].version += 1;
 
-      return new DbResult({ data: result[0] });
+      const cloneUser = { ...result[0] };
+      delete cloneUser.password;
+
+      return new DbResult({ data: cloneUser });
     }
 
     return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
