@@ -8,10 +8,11 @@ import {
   Delete,
   Res,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 import { Response } from 'express';
 
 import { DbResult } from 'src/storage/types/result.types';
@@ -45,7 +46,7 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result: DbResult = await this.userService.findOne(id);
-    if (result.isError) {
+    if (result.errorText) {
       switch (result.errorText) {
         case ErrorMessage.RECORD_NOT_EXISTS:
           res.status(HttpStatus.NOT_FOUND);
@@ -60,9 +61,9 @@ export class UserController {
     return result.data;
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdatePasswordDto) {
+    return this.userService.updatePassword(id, updateUserDto);
   }
 
   @Delete(':id')

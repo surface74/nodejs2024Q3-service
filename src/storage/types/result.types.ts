@@ -6,7 +6,7 @@ export interface Result {
 }
 
 export class DbResult implements Result {
-  readonly errorText: ErrorMessage = ErrorMessage.OK;
+  readonly errorText: ErrorMessage;
   readonly data: unknown = null;
 
   constructor(param: Result) {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 import db from 'src/storage/data.service';
 import { v4 as uuidv4, validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
@@ -47,8 +47,28 @@ export class UserService {
     return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
+    if (validate(id)) {
+      const result = await db.userStorage.filter(
+        (user: User) => user.id === id,
+      );
+
+      if (!result.length) {
+        return new DbResult({
+          errorText: ErrorMessage.RECORD_NOT_EXISTS,
+        });
+      }
+
+      if (result[0].password !== updatePasswordDto.oldPassword) {
+        return new DbResult({ errorText: ErrorMessage.BAD_PASSWORD });
+      }
+
+      result[0].password = updatePasswordDto.newPassword;
+
+      return new DbResult({ data: result[0] });
+    }
+
+    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 
   remove(id: number) {
