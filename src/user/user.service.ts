@@ -57,25 +57,26 @@ export class UserService {
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
     if (validate(id)) {
-      const result = await db.userStorage.filter(
+      const index = await db.userStorage.findIndex(
         (user: User) => user.id === id,
       );
 
-      if (!result.length) {
+      if (index < 0) {
         return new DbResult({
           errorText: ErrorMessage.RECORD_NOT_EXISTS,
         });
       }
 
-      if (result[0].password !== updatePasswordDto.oldPassword) {
+      const user: User = db.userStorage[index];
+      if (user.password !== updatePasswordDto.oldPassword) {
         return new DbResult({ errorText: ErrorMessage.BAD_PASSWORD });
       }
 
-      result[0].password = updatePasswordDto.newPassword;
-      result[0].updatedAt = Date.now();
-      result[0].version += 1;
+      user.password = updatePasswordDto.newPassword;
+      user.updatedAt = Date.now();
+      user.version += 1;
 
-      const cloneUser = { ...result[0] };
+      const cloneUser = { ...user };
       delete cloneUser.password;
 
       return new DbResult({ data: cloneUser });

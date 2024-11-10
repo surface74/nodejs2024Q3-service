@@ -1,0 +1,30 @@
+[
+  {
+    "id": "125b292b-7d0a-4517-a269-7b4cacdc702a",
+    "name": "I'm That Girl",
+    "artistId": "4ede540c-3863-4de8-a37c-7428d01b9bb4",
+    "albumId": "801f9aaa-e9b9-4856-92f5-3cf6b9185466",
+    "duration": 3
+  },
+  {
+    "id": "e96033a3-8c2a-4735-8134-bae8b2274991",
+    "name": "Cozy",
+    "artistId": "4ede540c-3863-4de8-a37c-7428d01b9bb4",
+    "albumId": "801f9aaa-e9b9-4856-92f5-3cf6b9185466",
+    "duration": 3
+  },
+  {
+    "id": "914770a7-88c4-422e-9e14-3fd2b39b0c30",
+    "name": "Blackbird",
+    "artistId": "4ede540c-3863-4de8-a37c-7428d01b9bb4",
+    "albumId": "e06dafca-6b31-40b5-936c-2a506a8d61d6",
+    "duration": 2
+  },
+  {
+    "id": "b9ce3fb9-51aa-46bf-8c07-28d1434ab415",
+    "name": "Hello",
+    "artistId": "db8d49f6-8ce4-4df0-a6a4-2d61a4db90ff",
+    "albumId": "fd7a320a-ba98-4bcd-b447-09be94db12fd",
+    "duration": 4
+  }
+]
