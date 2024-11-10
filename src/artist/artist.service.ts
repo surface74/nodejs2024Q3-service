@@ -49,11 +49,44 @@ export class ArtistService {
     return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 
-  async update(id: number, updateArtistDto: UpdateArtistDto) {
-    return `This action updates a #${id} artist`;
+  async update(id: string, updateArtistDto: UpdateArtistDto) {
+    if (validate(id)) {
+      const index = await db.artistStorage.findIndex(
+        (artist: Artist) => artist.id === id,
+      );
+
+      if (index < 0) {
+        return new DbResult({
+          errorText: ErrorMessage.RECORD_NOT_EXISTS,
+        });
+      }
+
+      if (updateArtistDto.name !== undefined)
+        db.artistStorage[index].name = updateArtistDto.name;
+      if (updateArtistDto.grammy !== undefined)
+        db.artistStorage[index].grammy = updateArtistDto.grammy;
+
+      return new DbResult({ data: { ...db.artistStorage[index] } });
+    }
+
+    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} artist`;
+  async remove(id: string) {
+    if (validate(id)) {
+      const index = await db.artistStorage.findIndex(
+        (artist: Artist) => artist.id === id,
+      );
+
+      if (index < 0) {
+        return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+      }
+
+      db.artistStorage.splice(index, 1);
+
+      return new DbResult({});
+    }
+
+    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 }

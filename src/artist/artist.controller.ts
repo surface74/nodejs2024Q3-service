@@ -8,6 +8,7 @@ import {
   Delete,
   HttpStatus,
   Res,
+  Put,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
@@ -62,16 +63,58 @@ export class ArtistController {
     return result.data;
   }
 
-  @Patch(':id')
+  @Put(':id')
   async update(
     @Param('id') id: string,
     @Body() updateArtistDto: UpdateArtistDto,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    return this.artistService.update(+id, updateArtistDto);
+    const result: DbResult = await this.artistService.update(
+      id,
+      updateArtistDto,
+    );
+
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.NOT_FOUND);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+
+    return result.data;
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.artistService.remove(+id);
+  async remove(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.artistService.remove(id);
+
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.NOT_FOUND);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+
+    res.status(HttpStatus.NO_CONTENT);
+    return '';
   }
 }
