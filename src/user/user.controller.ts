@@ -31,6 +31,8 @@ export class UserController {
       res.status(HttpStatus.BAD_REQUEST);
       return result.errorText;
     }
+
+    res.status(HttpStatus.CREATED);
     return result.data;
   }
 

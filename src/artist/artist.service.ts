@@ -10,18 +10,14 @@ import { Artist } from './entities/artist.entity';
 @Injectable()
 export class ArtistService {
   async create(createArtistDto: CreateArtistDto) {
-    if (createArtistDto.name) {
-      const artist: Artist = {
-        id: uuidv4(),
-        name: createArtistDto.name,
-        grammy: !!createArtistDto.grammy,
-      };
+    const artist: Artist = {
+      id: uuidv4(),
+      name: createArtistDto.name,
+      grammy: !!createArtistDto.grammy,
+    };
 
-      db.artistStorage.push(artist);
-      return new DbResult({ data: { ...artist } });
-    }
-
-    return new DbResult({ errorText: ErrorMessage.BAD_REQUEST });
+    await db.artistStorage.push(artist);
+    return new DbResult({ data: { ...artist } });
   }
 
   async findAll() {

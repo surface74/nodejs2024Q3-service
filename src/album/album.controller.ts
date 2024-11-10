@@ -21,8 +21,18 @@ export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Post()
-  async create(@Body() createAlbumDto: CreateAlbumDto) {
-    return await this.albumService.create(createAlbumDto);
+  async create(
+    @Body() createAlbumDto: CreateAlbumDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.albumService.create(createAlbumDto);
+    if (result.errorText) {
+      res.status(HttpStatus.BAD_REQUEST);
+      return result.errorText;
+    }
+
+    res.status(HttpStatus.CREATED);
+    return result.data;
   }
 
   @Get()
