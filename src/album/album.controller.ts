@@ -58,12 +58,50 @@ export class AlbumController {
   async update(
     @Param('id') id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    return await this.albumService.update(+id, updateAlbumDto);
+    const result: DbResult = await this.albumService.update(id, updateAlbumDto);
+
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.NOT_FOUND);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+
+    return result.data;
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.albumService.remove(+id);
+  async remove(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await await this.albumService.remove(id);
+
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.NOT_FOUND);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+    res.status(HttpStatus.NO_CONTENT);
+    return '';
   }
 }

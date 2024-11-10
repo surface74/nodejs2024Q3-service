@@ -1,4 +1,15 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateAlbumDto } from './create-album.dto';
+import { IsOptional, IsPositive, IsUUID, MinLength } from 'class-validator';
 
-export class UpdateAlbumDto extends PartialType(CreateAlbumDto) {}
+export class UpdateAlbumDto {
+  @IsOptional()
+  @MinLength(1)
+  name?: string;
+
+  @IsOptional()
+  @IsPositive()
+  year?: number;
+
+  @IsOptional()
+  @IsUUID()
+  artistId?: string | null; // refers to Artist
+}

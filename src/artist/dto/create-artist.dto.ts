@@ -1,8 +1,10 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsOptional, MinLength } from 'class-validator';
 
 export class CreateArtistDto {
-  @IsNotEmpty()
+  @MinLength(1)
   name: string;
 
+  @IsOptional()
+  @IsBoolean()
   grammy?: boolean;
 }

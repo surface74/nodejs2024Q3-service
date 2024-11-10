@@ -47,11 +47,45 @@ export class AlbumService {
     return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 
-  async update(id: number, updateAlbumDto: UpdateAlbumDto) {
-    return `This action updates a #${id} album`;
+  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
+    if (validate(id)) {
+      const index = await db.albumStorage.findIndex(
+        (album: Album) => album.id === id,
+      );
+
+      if (index < 0) {
+        return new DbResult({
+          errorText: ErrorMessage.RECORD_NOT_EXISTS,
+        });
+      }
+
+      const album = db.albumStorage[index];
+      if (updateAlbumDto.name !== undefined) album.name = updateAlbumDto.name;
+      if (updateAlbumDto.year !== undefined) album.year = updateAlbumDto.year;
+      if (updateAlbumDto.artistId !== undefined)
+        album.artistId = updateAlbumDto.artistId;
+
+      return new DbResult({ data: { ...db.albumStorage[index] } });
+    }
+
+    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} album`;
+  async remove(id: string) {
+    if (validate(id)) {
+      const index = await db.albumStorage.findIndex(
+        (album: Album) => album.id === id,
+      );
+
+      if (index < 0) {
+        return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+      }
+
+      await db.albumStorage.splice(index, 1);
+
+      return new DbResult({});
+    }
+
+    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 }
