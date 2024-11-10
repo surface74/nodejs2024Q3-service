@@ -84,7 +84,21 @@ export class UserService {
     return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    if (validate(id)) {
+      const index = await db.userStorage.findIndex(
+        (user: User) => user.id === id,
+      );
+
+      if (index < 0) {
+        return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+      }
+
+      db.userStorage.splice(index, 1);
+
+      return new DbResult({});
+    }
+
+    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 }

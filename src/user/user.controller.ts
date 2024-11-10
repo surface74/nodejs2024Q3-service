@@ -96,7 +96,28 @@ export class UserController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  async remove(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.userService.remove(id);
+
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.NOT_FOUND);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+
+    res.status(HttpStatus.NO_CONTENT);
+    return '';
   }
 }

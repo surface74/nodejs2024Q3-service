@@ -1,6 +1,6 @@
 import { IUser } from './user.interface';
 
-export class User implements IUser {
+export class User {
   id: string;
   login: string;
   password: string;
