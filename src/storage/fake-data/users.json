@@ -1,41 +1,51 @@
 [
   {
+    "id": "c79f278b-011c-45cd-934a-3d38d7471f40",
     "login": "Bret",
     "password": "123456"
   },
   {
+    "id": "8356df00-f135-4159-9375-8942654b0cce",
     "login": "Antonette",
     "password": "123456"
   },
   {
+    "id": "9196136f-67a0-4f5e-8f50-f6c135adbb16",
     "login": "Clementine",
     "password": "123456"
   },
   {
+    "id": "c675059d-e9e6-4d8d-8920-ba242a86238d",
     "login": "Karianne",
     "password": "123456"
   },
   {
+    "id": "5d607b40-a2f1-4050-b61f-a44e16365b57",
     "login": "Kamren",
     "password": "123456"
   },
   {
+    "id": "f72e1df0-4af0-4615-aa5a-90f08796c981",
     "login": "Leopoldo_Corkery",
     "password": "123456"
   },
   {
+    "id": "a07789ab-caf5-4e5e-be45-67e47a19c3cd",
     "login": "Elwyn.Skiles",
     "password": "123456"
   },
   {
+    "id": "d107ec7e-831f-4858-a6f5-b74c27fdd3ef",
     "login": "Maxime_Nienow",
     "password": "123456"
   },
   {
+    "id": "3a9fa46c-317b-4bc5-a959-2b67067a0881",
     "login": "Delphine",
     "password": "123456"
   },
   {
+    "id": "51d74dab-941e-48c0-8d4b-c697b3b6894c",
     "login": "Moriah.Stanton",
     "password": "123456"
   }

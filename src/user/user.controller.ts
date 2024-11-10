@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Res,
@@ -23,11 +22,11 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(
+  async create(
     @Body() createUserDto: CreateUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = this.userService.create(createUserDto);
+    const result = await this.userService.create(createUserDto);
     if (result.errorText) {
       res.status(HttpStatus.BAD_REQUEST);
       return result.errorText;

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "4ede540c-3863-4de8-a37c-7428d01b9bb4",
+    "name": "Beyoncé Giselle Knowles-Carter",
+    "grammy": true
+  },
+  {
+    "id": "db8d49f6-8ce4-4df0-a6a4-2d61a4db90ff",
+    "name": "Adele Laurie Blue Adkin",
+    "grammy": true
+  },
+  {
+    "id": "3edc5867-af39-456f-9bbf-b7e28afdaa90",
+    "name": "Mariah Carey",
+    "grammy": true
+  },
+  {
+    "id": "aed7051c-a0eb-4aee-b85d-4f1a950ef931",
+    "name": "Sheryl Suzanne Crow",
+    "grammy": true
+  },
+  {
+    "id": "ac10ca66-f39a-4f6a-a161-d87047ed3e28",
+    "name": "Paul McCartney",
+    "grammy": true
+  }
+]
