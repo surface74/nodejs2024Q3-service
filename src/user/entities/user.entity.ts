@@ -1,5 +1,3 @@
-import { IUser } from './user.interface';
-
 export class User {
   id: string;
   login: string;
