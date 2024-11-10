@@ -4,7 +4,9 @@ import { Artist } from 'src/artist/entities/artist.entity';
 import * as users from './fake-data/users.json';
 import * as artists from './fake-data/artists.json';
 import * as albums from './fake-data/albums.json';
+import * as tracks from './fake-data/tracks.json';
 import { Album } from 'src/album/entities/album.entity';
+import { Track } from 'src/track/entities/track.entity';
 
 class DataService {
   static instance: DataService = new DataService();
@@ -12,6 +14,7 @@ class DataService {
   public userStorage: User[] = new Array<User>();
   public artistStorage: Artist[] = new Array<Artist>();
   public albumStorage: Album[] = new Array<Album>();
+  public trackStorage: Track[] = new Array<Track>();
 
   private constructor() {
     if (!DataService.instance) DataService.instance = this;
@@ -19,10 +22,15 @@ class DataService {
     this.fillUsers();
     this.fillArtists();
     this.fillAlbums();
+    this.fillTracks();
   }
 
   public static getInstance(): DataService {
     return DataService.instance;
+  }
+
+  private fillTracks(): void {
+    tracks.forEach((track: Track) => this.trackStorage.push(track));
   }
 
   private fillAlbums(): void {

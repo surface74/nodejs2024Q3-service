@@ -33,12 +33,12 @@ export class ArtistService {
 
   async findOne(id: string) {
     if (validate(id)) {
-      const result = await db.artistStorage.filter(
+      const index = await db.artistStorage.findIndex(
         (artist: Artist) => artist.id === id,
       );
 
-      if (result.length > 0) {
-        return new DbResult({ data: { ...result[0] } });
+      if (index > -1) {
+        return new DbResult({ data: { ...db.artistStorage[index] } });
       }
 
       return new DbResult({
