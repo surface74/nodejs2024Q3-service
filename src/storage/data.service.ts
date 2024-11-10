@@ -38,12 +38,13 @@ class DataService {
     this.fillArtists();
     this.fillAlbums();
     this.fillTracks();
+    this.fillFavs();
   }
 
   private fillFavs(): void {
-    this.favStorage.albums.concat(...favs.albums);
-    this.favStorage.artists.concat(...favs.artists);
-    this.favStorage.tracks.concat(...favs.tracks);
+    favs.albums.forEach((id: string) => this.favStorage.albums.push(id));
+    favs.artists.forEach((id: string) => this.favStorage.artists.push(id));
+    favs.tracks.forEach((id: string) => this.favStorage.tracks.push(id));
   }
 
   private fillTracks(): void {
