@@ -68,12 +68,51 @@ export class TrackController {
   async update(
     @Param('id') id: string,
     @Body() updateTrackDto: UpdateTrackDto,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    return this.trackService.update(id, updateTrackDto);
+    const result: DbResult = await this.trackService.update(id, updateTrackDto);
+
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.NOT_FOUND);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+
+    return result.data;
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.trackService.remove(id);
+  async remove(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.trackService.remove(id);
+
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.NOT_FOUND);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+
+    res.status(HttpStatus.NO_CONTENT);
+    return '';
   }
 }

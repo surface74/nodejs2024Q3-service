@@ -28,61 +28,61 @@ export class ArtistService {
   }
 
   async findOne(id: string) {
-    if (validate(id)) {
-      const index = await db.artistStorage.findIndex(
-        (artist: Artist) => artist.id === id,
-      );
+    if (!validate(id)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
 
-      if (index > -1) {
-        return new DbResult({ data: { ...db.artistStorage[index] } });
-      }
+    const index = await db.artistStorage.findIndex(
+      (artist: Artist) => artist.id === id,
+    );
 
+    if (index > -1) {
+      return new DbResult({ data: { ...db.artistStorage[index] } });
+    }
+
+    return new DbResult({
+      errorText: ErrorMessage.RECORD_NOT_EXISTS,
+    });
+  }
+
+  async update(id: string, updateArtistDto: UpdateArtistDto) {
+    if (!validate(id)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const index = await db.artistStorage.findIndex(
+      (artist: Artist) => artist.id === id,
+    );
+
+    if (index < 0) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
     }
 
-    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-  }
+    if (updateArtistDto.name !== undefined)
+      db.artistStorage[index].name = updateArtistDto.name;
+    if (updateArtistDto.grammy !== undefined)
+      db.artistStorage[index].grammy = updateArtistDto.grammy;
 
-  async update(id: string, updateArtistDto: UpdateArtistDto) {
-    if (validate(id)) {
-      const index = await db.artistStorage.findIndex(
-        (artist: Artist) => artist.id === id,
-      );
-
-      if (index < 0) {
-        return new DbResult({
-          errorText: ErrorMessage.RECORD_NOT_EXISTS,
-        });
-      }
-
-      if (updateArtistDto.name !== undefined)
-        db.artistStorage[index].name = updateArtistDto.name;
-      if (updateArtistDto.grammy !== undefined)
-        db.artistStorage[index].grammy = updateArtistDto.grammy;
-
-      return new DbResult({ data: { ...db.artistStorage[index] } });
-    }
-
-    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    return new DbResult({ data: { ...db.artistStorage[index] } });
   }
 
   async remove(id: string) {
-    if (validate(id)) {
-      const index = await db.artistStorage.findIndex(
-        (artist: Artist) => artist.id === id,
-      );
-
-      if (index < 0) {
-        return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
-      }
-
-      db.artistStorage.splice(index, 1);
-
-      return new DbResult({});
+    if (!validate(id)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    const index = await db.artistStorage.findIndex(
+      (artist: Artist) => artist.id === id,
+    );
+
+    if (index < 0) {
+      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+    }
+
+    db.artistStorage.splice(index, 1);
+
+    return new DbResult({});
   }
 }

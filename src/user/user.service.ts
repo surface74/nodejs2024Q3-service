@@ -9,21 +9,19 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    if (createUserDto.login && createUserDto.password) {
-      const user: User = {
-        ...createUserDto,
-        id: uuidv4(),
-        version: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-      db.userStorage.push(user);
+  async create(createUserDto: CreateUserDto) {
+    const { login, password } = createUserDto;
+    const user: User = {
+      id: uuidv4(),
+      login,
+      password,
+      version: 0,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    await db.userStorage.push(user);
 
-      return new DbResult({ data: { ...user } });
-    }
-
-    return new DbResult({ errorText: ErrorMessage.BAD_REQUEST });
+    return new DbResult({ data: { ...user } });
   }
 
   async findAll() {
@@ -36,70 +34,68 @@ export class UserService {
   }
 
   async findOne(id: string) {
-    if (validate(id)) {
-      const result = await db.userStorage.filter(
-        (user: User) => user.id === id,
-      );
+    if (!validate(id)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
 
-      if (result.length > 0) {
-        const cloneUser = { ...result[0] };
-        delete cloneUser.password;
-        return new DbResult({ data: cloneUser });
-      }
+    const result = await db.userStorage.filter((user: User) => user.id === id);
 
+    if (result.length > 0) {
+      const cloneUser = { ...result[0] };
+      delete cloneUser.password;
+      return new DbResult({ data: cloneUser });
+    }
+
+    return new DbResult({
+      errorText: ErrorMessage.RECORD_NOT_EXISTS,
+    });
+  }
+
+  async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
+    if (!validate(id)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const index = await db.userStorage.findIndex(
+      (user: User) => user.id === id,
+    );
+
+    if (index < 0) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
     }
 
-    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-  }
-
-  async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
-    if (validate(id)) {
-      const index = await db.userStorage.findIndex(
-        (user: User) => user.id === id,
-      );
-
-      if (index < 0) {
-        return new DbResult({
-          errorText: ErrorMessage.RECORD_NOT_EXISTS,
-        });
-      }
-
-      const user: User = db.userStorage[index];
-      if (user.password !== updatePasswordDto.oldPassword) {
-        return new DbResult({ errorText: ErrorMessage.BAD_PASSWORD });
-      }
-
-      user.password = updatePasswordDto.newPassword;
-      user.updatedAt = Date.now();
-      user.version += 1;
-
-      const cloneUser = { ...user };
-      delete cloneUser.password;
-
-      return new DbResult({ data: cloneUser });
+    const user: User = db.userStorage[index];
+    if (user.password !== updatePasswordDto.oldPassword) {
+      return new DbResult({ errorText: ErrorMessage.BAD_PASSWORD });
     }
 
-    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    user.password = updatePasswordDto.newPassword;
+    user.updatedAt = Date.now();
+    user.version += 1;
+
+    const cloneUser = { ...user };
+    delete cloneUser.password;
+
+    return new DbResult({ data: cloneUser });
   }
 
   async remove(id: string) {
-    if (validate(id)) {
-      const index = await db.userStorage.findIndex(
-        (user: User) => user.id === id,
-      );
-
-      if (index < 0) {
-        return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
-      }
-
-      db.userStorage.splice(index, 1);
-
-      return new DbResult({});
+    if (!validate(id)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    const index = await db.userStorage.findIndex(
+      (user: User) => user.id === id,
+    );
+
+    if (index < 0) {
+      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+    }
+
+    await db.userStorage.splice(index, 1);
+
+    return new DbResult({});
   }
 }

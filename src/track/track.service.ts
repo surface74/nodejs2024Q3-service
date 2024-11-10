@@ -30,28 +30,65 @@ export class TrackService {
   }
 
   async findOne(id: string) {
-    if (validate(id)) {
-      const index = await db.trackStorage.findIndex(
-        (track: Track) => track.id === id,
-      );
+    if (!validate(id)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
 
-      if (index > -1) {
-        return new DbResult({ data: { ...db.trackStorage[index] } });
-      }
+    const index = await db.trackStorage.findIndex(
+      (track: Track) => track.id === id,
+    );
 
+    if (index > -1) {
+      return new DbResult({ data: { ...db.trackStorage[index] } });
+    }
+
+    return new DbResult({
+      errorText: ErrorMessage.RECORD_NOT_EXISTS,
+    });
+  }
+
+  async update(id: string, updateTrackDto: UpdateTrackDto) {
+    if (!validate(id)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const index = await db.trackStorage.findIndex(
+      (track: Track) => track.id === id,
+    );
+
+    if (index < 0) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
     }
 
-    return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-  }
+    const track = db.trackStorage[index];
+    if (updateTrackDto.name !== undefined) track.name = updateTrackDto.name;
+    if (updateTrackDto.artistId !== undefined)
+      track.artistId = updateTrackDto.artistId;
+    if (updateTrackDto.albumId !== undefined)
+      track.albumId = updateTrackDto.albumId;
+    if (updateTrackDto.duration !== undefined)
+      track.duration = updateTrackDto.duration;
 
-  async update(id: string, updateTrackDto: UpdateTrackDto) {
-    return `This action updates a #${id} track`;
+    return new DbResult({ data: { ...track } });
   }
 
   async remove(id: string) {
-    return `This action removes a #${id} track`;
+    if (!validate(id)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const index = await db.trackStorage.findIndex(
+      (track: Track) => track.id === id,
+    );
+
+    if (index < 0) {
+      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+    }
+
+    db.trackStorage.splice(index, 1);
+
+    return new DbResult({});
   }
 }
