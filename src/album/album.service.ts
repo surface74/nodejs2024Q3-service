@@ -6,6 +6,7 @@ import { v4 as uuidv4, validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
 import { Album } from './entities/album.entity';
+import { Track } from 'src/track/entities/track.entity';
 
 @Injectable()
 export class AlbumService {
@@ -81,11 +82,32 @@ export class AlbumService {
         return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
       }
 
+      await this.removeFavAlbum(id);
+      await this.removeTrackAlbum(id);
+
       await db.albumStorage.splice(index, 1);
 
       return new DbResult({});
     }
 
     return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+  }
+
+  async removeFavAlbum(itemId: string) {
+    const index = await db.favStorage.albums.findIndex(
+      (id: string) => itemId === id,
+    );
+    if (index > -1) {
+      await db.favStorage.albums.splice(index, 1);
+    }
+  }
+
+  async removeTrackAlbum(id: string) {
+    const index = await db.trackStorage.findIndex(
+      ({ albumId }: Track) => albumId === id,
+    );
+    if (index > -1) {
+      db.trackStorage[index].albumId = null;
+    }
   }
 }

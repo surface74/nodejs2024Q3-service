@@ -1,8 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { CreateFavoriteDto } from './dto/create-favorite.dto';
-import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 import db from 'src/storage/data.service';
-import { v4 as uuidv4, validate } from 'uuid';
+import { validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
 
@@ -34,7 +32,7 @@ export class FavoritesService {
       (item: Artist) => item.id === itemId,
     );
 
-    if (itemIndex == -1) {
+    if (itemIndex < 0) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
@@ -59,7 +57,7 @@ export class FavoritesService {
       (item: Album) => item.id === itemId,
     );
 
-    if (itemIndex == -1) {
+    if (itemIndex < 0) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
@@ -84,7 +82,7 @@ export class FavoritesService {
       (item: Track) => item.id === itemId,
     );
 
-    if (itemIndex == -1) {
+    if (itemIndex < 0) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
@@ -109,7 +107,7 @@ export class FavoritesService {
       (id: string) => id === itemId,
     );
 
-    if (favIndex == -1) {
+    if (favIndex < 0) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
@@ -129,7 +127,7 @@ export class FavoritesService {
       (id: string) => id === itemId,
     );
 
-    if (favIndex == -1) {
+    if (favIndex < 0) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
@@ -149,7 +147,7 @@ export class FavoritesService {
       (id: string) => id === itemId,
     );
 
-    if (favIndex == -1) {
+    if (favIndex < 0) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });

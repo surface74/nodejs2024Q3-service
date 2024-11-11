@@ -6,6 +6,8 @@ import { v4 as uuidv4, validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
 import { Artist } from './entities/artist.entity';
+import { Album } from 'src/album/entities/album.entity';
+import { Track } from 'src/track/entities/track.entity';
 
 @Injectable()
 export class ArtistService {
@@ -81,8 +83,39 @@ export class ArtistService {
       return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
+    await this.removeFavArtist(id);
+    await this.removeAlbumArtist(id);
+    await this.removeTrackArtist(id);
+
     db.artistStorage.splice(index, 1);
 
     return new DbResult({});
+  }
+
+  async removeFavArtist(itemId: string) {
+    const index = await db.favStorage.artists.findIndex(
+      (id: string) => itemId === id,
+    );
+    if (index > -1) {
+      await db.favStorage.artists.splice(index, 1);
+    }
+  }
+
+  async removeAlbumArtist(id: string) {
+    const index = await db.albumStorage.findIndex(
+      ({ artistId }: Album) => artistId === id,
+    );
+    if (index > -1) {
+      db.albumStorage[index].artistId = null;
+    }
+  }
+
+  async removeTrackArtist(id: string) {
+    const index = await db.trackStorage.findIndex(
+      ({ artistId }: Track) => artistId === id,
+    );
+    if (index > -1) {
+      db.trackStorage[index].artistId = null;
+    }
   }
 }

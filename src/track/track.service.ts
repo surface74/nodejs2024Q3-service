@@ -87,8 +87,19 @@ export class TrackService {
       return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
+    await this.removeFavTrack(id);
+
     db.trackStorage.splice(index, 1);
 
     return new DbResult({});
+  }
+
+  async removeFavTrack(itemId: string) {
+    const index = await db.favStorage.tracks.findIndex(
+      (id: string) => itemId === id,
+    );
+    if (index > -1) {
+      await db.favStorage.tracks.splice(index, 1);
+    }
   }
 }
