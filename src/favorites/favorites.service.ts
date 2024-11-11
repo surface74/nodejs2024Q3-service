@@ -25,8 +25,49 @@ export class FavoritesService {
     private trackService: TrackService,
   ) {}
 
-  async create(createFavoriteDto: CreateFavoriteDto) {
-    return 'This action adds a new favorite';
+  async addTrack(itemId: string) {
+    if (!validate(itemId)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const itemIndex = await db.trackStorage.findIndex(
+      (track: Track) => track.id === itemId,
+    );
+
+    if (itemIndex == -1) {
+      return new DbResult({
+        errorText: ErrorMessage.RECORD_NOT_EXISTS,
+      });
+    }
+
+    const favIndex = await db.favStorage.tracks.findIndex(
+      (id: string) => id === itemId,
+    );
+    if (favIndex < 0) {
+      await db.favStorage.tracks.push(itemId);
+    }
+
+    return new DbResult({});
+  }
+
+  async removeTrack(itemId: string) {
+    if (!validate(itemId)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const favIndex = await db.favStorage.tracks.findIndex(
+      (id: string) => id === itemId,
+    );
+
+    if (favIndex == -1) {
+      return new DbResult({
+        errorText: ErrorMessage.RECORD_NOT_EXISTS,
+      });
+    }
+
+    await db.favStorage.tracks.splice(favIndex, 1);
+
+    return new DbResult({});
   }
 
   async findAll() {
