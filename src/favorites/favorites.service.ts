@@ -25,13 +25,38 @@ export class FavoritesService {
     private trackService: TrackService,
   ) {}
 
+  async addAlbum(itemId: string) {
+    if (!validate(itemId)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const itemIndex = await db.albumStorage.findIndex(
+      (item: Album) => item.id === itemId,
+    );
+
+    if (itemIndex == -1) {
+      return new DbResult({
+        errorText: ErrorMessage.RECORD_NOT_EXISTS,
+      });
+    }
+
+    const favIndex = await db.favStorage.albums.findIndex(
+      (id: string) => id === itemId,
+    );
+    if (favIndex < 0) {
+      await db.favStorage.albums.push(itemId);
+    }
+
+    return new DbResult({});
+  }
+
   async addTrack(itemId: string) {
     if (!validate(itemId)) {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
     const itemIndex = await db.trackStorage.findIndex(
-      (track: Track) => track.id === itemId,
+      (item: Track) => item.id === itemId,
     );
 
     if (itemIndex == -1) {
@@ -46,6 +71,26 @@ export class FavoritesService {
     if (favIndex < 0) {
       await db.favStorage.tracks.push(itemId);
     }
+
+    return new DbResult({});
+  }
+
+  async removeAlbum(itemId: string) {
+    if (!validate(itemId)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const favIndex = await db.favStorage.albums.findIndex(
+      (id: string) => id === itemId,
+    );
+
+    if (favIndex == -1) {
+      return new DbResult({
+        errorText: ErrorMessage.RECORD_NOT_EXISTS,
+      });
+    }
+
+    await db.favStorage.albums.splice(favIndex, 1);
 
     return new DbResult({});
   }
@@ -99,17 +144,5 @@ export class FavoritesService {
     }
 
     return favs;
-  }
-
-  async findOne(id: number) {
-    return `This action returns a #${id} favorite`;
-  }
-
-  async update(id: number, updateFavoriteDto: UpdateFavoriteDto) {
-    return `This action updates a #${id} favorite`;
-  }
-
-  async remove(id: number) {
-    return `This action removes a #${id} favorite`;
   }
 }
