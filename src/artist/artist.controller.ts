@@ -15,12 +15,25 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { Response } from 'express';
 import { DbResult } from 'src/storage/types/result.types';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Artist')
 @Controller('artist')
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
 
   @Post()
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({
+    description: 'Request body does not contain required fields',
+  })
   async create(
     @Body() createArtistDto: CreateArtistDto,
     @Res({ passthrough: true }) res: Response,
@@ -36,11 +49,15 @@ export class ArtistController {
   }
 
   @Get()
+  @ApiOkResponse({ description: 'OK' })
   async findAll() {
     return (await this.artistService.findAll()).data;
   }
 
   @Get(':id')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -65,6 +82,9 @@ export class ArtistController {
   }
 
   @Put(':id')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async update(
     @Param('id') id: string,
     @Body() updateArtistDto: UpdateArtistDto,
@@ -94,6 +114,9 @@ export class ArtistController {
   }
 
   @Delete(':id')
+  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async remove(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,

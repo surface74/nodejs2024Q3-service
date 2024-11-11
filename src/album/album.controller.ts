@@ -15,12 +15,25 @@ import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Response } from 'express';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Album')
 @Controller('album')
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Post()
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({
+    description: 'Request body does not contain required fields',
+  })
   async create(
     @Body() createAlbumDto: CreateAlbumDto,
     @Res({ passthrough: true }) res: Response,
@@ -36,11 +49,15 @@ export class AlbumController {
   }
 
   @Get()
+  @ApiOkResponse({ description: 'OK' })
   async findAll() {
     return (await this.albumService.findAll()).data;
   }
 
   @Get(':id')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -65,6 +82,9 @@ export class AlbumController {
   }
 
   @Put(':id')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async update(
     @Param('id') id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
@@ -91,6 +111,9 @@ export class AlbumController {
   }
 
   @Delete(':id')
+  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async remove(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,

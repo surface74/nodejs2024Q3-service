@@ -32,7 +32,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @ApiCreatedResponse({ description: 'User created' })
+  @ApiCreatedResponse({ description: 'Created' })
   @ApiBadRequestResponse({
     description: 'Request body does not contain required fields',
   })

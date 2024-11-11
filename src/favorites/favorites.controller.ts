@@ -11,12 +11,25 @@ import { FavoritesService } from './favorites.service';
 import { Response } from 'express';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 
+@ApiTags('Album')
 @Controller('favs')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Post('artist/:id')
+  @ApiCreatedResponse({ description: 'Artist added to favorites' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiUnprocessableEntityResponse({ description: 'Not exist' })
   async addArtist(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -42,6 +55,9 @@ export class FavoritesController {
   }
 
   @Post('album/:id')
+  @ApiCreatedResponse({ description: 'Artist added to favorites' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiUnprocessableEntityResponse({ description: 'Not exist' })
   async addAlbum(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -67,6 +83,9 @@ export class FavoritesController {
   }
 
   @Post('track/:id')
+  @ApiCreatedResponse({ description: 'Artist added to favorites' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiUnprocessableEntityResponse({ description: 'Not exist' })
   async addTrack(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -92,6 +111,9 @@ export class FavoritesController {
   }
 
   @Delete('artist/:id')
+  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async removeArtist(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -117,6 +139,9 @@ export class FavoritesController {
   }
 
   @Delete('album/:id')
+  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async removeAlbum(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -142,6 +167,9 @@ export class FavoritesController {
   }
 
   @Delete('track/:id')
+  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async removeTrack(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -167,6 +195,7 @@ export class FavoritesController {
   }
 
   @Get()
+  @ApiOkResponse({ description: 'OK' })
   async findAll() {
     return await this.favoritesService.findAll();
   }

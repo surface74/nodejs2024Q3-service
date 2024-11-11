@@ -15,12 +15,25 @@ import { UpdateTrackDto } from './dto/update-track.dto';
 import { Response } from 'express';
 import { DbResult } from 'src/storage/types/result.types';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Track')
 @Controller('track')
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
 
   @Post()
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({
+    description: 'Request body does not contain required fields',
+  })
   async create(
     @Body() createTrackDto: CreateTrackDto,
     @Res({ passthrough: true }) res: Response,
@@ -36,11 +49,15 @@ export class TrackController {
   }
 
   @Get()
+  @ApiOkResponse({ description: 'OK' })
   async findAll() {
     return (await this.trackService.findAll()).data;
   }
 
   @Get(':id')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -65,6 +82,9 @@ export class TrackController {
   }
 
   @Put(':id')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async update(
     @Param('id') id: string,
     @Body() updateTrackDto: UpdateTrackDto,
@@ -91,6 +111,9 @@ export class TrackController {
   }
 
   @Delete(':id')
+  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async remove(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
