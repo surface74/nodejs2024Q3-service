@@ -20,8 +20,9 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { FavoritesResponse } from './entities/favorites-response.entity';
 
-@ApiTags('Album')
+@ApiTags('Favorites')
 @Controller('favs')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
@@ -195,7 +196,7 @@ export class FavoritesController {
   }
 
   @Get()
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: FavoritesResponse })
   async findAll() {
     return await this.favoritesService.findAll();
   }

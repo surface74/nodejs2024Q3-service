@@ -23,6 +23,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Track } from './entities/track.entity';
 
 @ApiTags('Track')
 @Controller('track')
@@ -30,7 +31,7 @@ export class TrackController {
   constructor(private readonly trackService: TrackService) {}
 
   @Post()
-  @ApiCreatedResponse({ description: 'Created' })
+  @ApiCreatedResponse({ description: 'Created', type: Track })
   @ApiBadRequestResponse({
     description: 'Request body does not contain required fields',
   })
@@ -49,13 +50,13 @@ export class TrackController {
   }
 
   @Get()
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: [Track] })
   async findAll() {
     return (await this.trackService.findAll()).data;
   }
 
   @Get(':id')
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: Track })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
@@ -82,7 +83,7 @@ export class TrackController {
   }
 
   @Put(':id')
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: Track })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async update(

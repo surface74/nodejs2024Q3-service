@@ -25,6 +25,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { UserResponce } from './entities/user-responce.entity';
 
 @ApiTags('User')
 @Controller('user')
@@ -32,7 +33,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @ApiCreatedResponse({ description: 'Created' })
+  @ApiCreatedResponse({ description: 'Created', type: UserResponce })
   @ApiBadRequestResponse({
     description: 'Request body does not contain required fields',
   })
@@ -51,13 +52,13 @@ export class UserController {
   }
 
   @Get()
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: [UserResponce] })
   async findAll() {
     return (await this.userService.findAll()).data;
   }
 
   @Get(':id')
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: UserResponce })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
@@ -84,7 +85,7 @@ export class UserController {
   }
 
   @Put(':id')
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: UserResponce })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiForbiddenResponse({ description: 'Invalid password' })
   @ApiNotFoundResponse({ description: 'Not found' })

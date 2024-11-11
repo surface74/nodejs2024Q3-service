@@ -23,6 +23,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Artist } from './entities/artist.entity';
 
 @ApiTags('Artist')
 @Controller('artist')
@@ -30,7 +31,7 @@ export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
 
   @Post()
-  @ApiCreatedResponse({ description: 'Created' })
+  @ApiCreatedResponse({ description: 'Created', type: Artist })
   @ApiBadRequestResponse({
     description: 'Request body does not contain required fields',
   })
@@ -49,13 +50,13 @@ export class ArtistController {
   }
 
   @Get()
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: [Artist] })
   async findAll() {
     return (await this.artistService.findAll()).data;
   }
 
   @Get(':id')
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: Artist })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
@@ -82,7 +83,7 @@ export class ArtistController {
   }
 
   @Put(':id')
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: Artist })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async update(

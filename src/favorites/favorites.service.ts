@@ -4,7 +4,7 @@ import { validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
 
-import { FavoritesResponse } from './types/favorites-response.interface';
+import { FavoritesResponse } from './entities/favorites-response.entity';
 import { Album } from 'src/album/entities/album.entity';
 import { Track } from 'src/track/entities/track.entity';
 import { Artist } from 'src/artist/entities/artist.entity';

@@ -14,7 +14,6 @@ async function bootstrap() {
     .setTitle('Home Library Service')
     .setDescription('The Home Library Service description')
     .setVersion('1.0')
-    .addTag('library')
     .build();
 
   const options: SwaggerDocumentOptions = {};

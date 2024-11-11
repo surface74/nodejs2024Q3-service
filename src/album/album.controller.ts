@@ -23,6 +23,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Album } from './entities/album.entity';
 
 @ApiTags('Album')
 @Controller('album')
@@ -30,7 +31,7 @@ export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Post()
-  @ApiCreatedResponse({ description: 'Created' })
+  @ApiCreatedResponse({ description: 'Created', type: Album })
   @ApiBadRequestResponse({
     description: 'Request body does not contain required fields',
   })
@@ -49,13 +50,13 @@ export class AlbumController {
   }
 
   @Get()
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: [Album] })
   async findAll() {
     return (await this.albumService.findAll()).data;
   }
 
   @Get(':id')
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: Album })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
@@ -82,7 +83,7 @@ export class AlbumController {
   }
 
   @Put(':id')
-  @ApiOkResponse({ description: 'OK' })
+  @ApiOkResponse({ description: 'OK', type: Album })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async update(

@@ -4,7 +4,7 @@ import { IsBoolean, IsOptional, IsString } from 'class-validator';
 export class UpdateArtistDto {
   @ApiProperty({
     required: false,
-    description: 'Artist`s name',
+    description: 'Artist name',
   })
   @IsOptional()
   @IsString()
