@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 2.0.0
 info:
   title: Home Library Service
   description: Home music library service
@@ -158,7 +158,7 @@ paths:
     post:
       tags:
         - Signup
-      security: [ ]
+      security: []
       summary: Signup
       description: Signup a user
       requestBody:
