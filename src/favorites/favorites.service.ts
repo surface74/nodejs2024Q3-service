@@ -25,6 +25,31 @@ export class FavoritesService {
     private trackService: TrackService,
   ) {}
 
+  async addArtist(itemId: string) {
+    if (!validate(itemId)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const itemIndex = await db.artistStorage.findIndex(
+      (item: Artist) => item.id === itemId,
+    );
+
+    if (itemIndex == -1) {
+      return new DbResult({
+        errorText: ErrorMessage.RECORD_NOT_EXISTS,
+      });
+    }
+
+    const favIndex = await db.favStorage.artists.findIndex(
+      (id: string) => id === itemId,
+    );
+    if (favIndex < 0) {
+      await db.favStorage.artists.push(itemId);
+    }
+
+    return new DbResult({});
+  }
+
   async addAlbum(itemId: string) {
     if (!validate(itemId)) {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
@@ -71,6 +96,26 @@ export class FavoritesService {
     if (favIndex < 0) {
       await db.favStorage.tracks.push(itemId);
     }
+
+    return new DbResult({});
+  }
+
+  async removeArtist(itemId: string) {
+    if (!validate(itemId)) {
+      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    }
+
+    const favIndex = await db.favStorage.artists.findIndex(
+      (id: string) => id === itemId,
+    );
+
+    if (favIndex == -1) {
+      return new DbResult({
+        errorText: ErrorMessage.RECORD_NOT_EXISTS,
+      });
+    }
+
+    await db.favStorage.artists.splice(favIndex, 1);
 
     return new DbResult({});
   }

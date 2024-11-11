@@ -16,6 +16,31 @@ import { DbResult } from 'src/storage/types/result.types';
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
+  @Post('artist/:id')
+  async addArtist(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result: DbResult = await this.favoritesService.addArtist(id);
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.UNPROCESSABLE_ENTITY);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+
+    res.status(HttpStatus.CREATED);
+    return result.data;
+  }
+
   @Post('album/:id')
   async addAlbum(
     @Param('id') id: string,
@@ -63,6 +88,31 @@ export class FavoritesController {
     }
 
     res.status(HttpStatus.CREATED);
+    return result.data;
+  }
+
+  @Delete('artist/:id')
+  async removeArtist(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result: DbResult = await this.favoritesService.removeArtist(id);
+    if (result.errorText) {
+      switch (result.errorText) {
+        case ErrorMessage.RECORD_NOT_EXISTS:
+          res.status(HttpStatus.NOT_FOUND);
+          break;
+        case ErrorMessage.WRONG_UUID:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+        default:
+          res.status(HttpStatus.BAD_REQUEST);
+          break;
+      }
+      return result.errorText;
+    }
+
+    res.status(HttpStatus.NO_CONTENT);
     return result.data;
   }
 
