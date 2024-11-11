@@ -12,10 +12,11 @@ import { Track } from 'src/track/entities/track.entity';
 @Injectable()
 export class ArtistService {
   async create(createArtistDto: CreateArtistDto) {
+    const { name, grammy } = createArtistDto;
     const artist: Artist = {
       id: uuidv4(),
-      name: createArtistDto.name,
-      grammy: !!createArtistDto.grammy,
+      name,
+      grammy,
     };
 
     await db.artistStorage.push(artist);

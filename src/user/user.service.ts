@@ -15,13 +15,16 @@ export class UserService {
       id: uuidv4(),
       login,
       password,
-      version: 0,
+      version: 1,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
     await db.userStorage.push(user);
 
-    return new DbResult({ data: { ...user } });
+    const cloneUser = { ...user };
+    delete cloneUser.password;
+
+    return new DbResult({ data: cloneUser });
   }
 
   async findAll() {
