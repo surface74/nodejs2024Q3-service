@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { User } from 'src/user/entities/user.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
 import * as users from './fake-data/users.json';
