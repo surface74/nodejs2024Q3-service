@@ -16,12 +16,26 @@ import { Response } from 'express';
 
 import { DbResult } from 'src/storage/types/result.types';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @ApiCreatedResponse({ description: 'User created' })
+  @ApiBadRequestResponse({
+    description: 'Request body does not contain required fields',
+  })
   async create(
     @Body() createUserDto: CreateUserDto,
     @Res({ passthrough: true }) res: Response,
@@ -37,11 +51,15 @@ export class UserController {
   }
 
   @Get()
+  @ApiOkResponse({ description: 'OK' })
   async findAll() {
     return (await this.userService.findAll()).data;
   }
 
   @Get(':id')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -66,6 +84,10 @@ export class UserController {
   }
 
   @Put(':id')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiForbiddenResponse({ description: 'Invalid password' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async update(
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
@@ -97,6 +119,9 @@ export class UserController {
   }
 
   @Delete(':id')
+  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiBadRequestResponse({ description: 'Invalid UUID' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async remove(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,

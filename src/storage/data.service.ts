@@ -1,10 +1,10 @@
 import { User } from 'src/user/entities/user.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
-import * as users from './fake-data/users.json';
-import * as artists from './fake-data/artists.json';
-import * as albums from './fake-data/albums.json';
-import * as tracks from './fake-data/tracks.json';
-import * as favs from './fake-data/favorites.json';
+import * as users from './mock-data/users.json';
+import * as artists from './mock-data/artists.json';
+import * as albums from './mock-data/albums.json';
+import * as tracks from './mock-data/tracks.json';
+import * as favs from './mock-data/favorites.json';
 import { Album } from 'src/album/entities/album.entity';
 import { Track } from 'src/track/entities/track.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
