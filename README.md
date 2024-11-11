@@ -2,8 +2,9 @@
 
 # Home Library Service
 
-This is CRUD-service, which allow you to organaze backend server to store your music collection.
+This is CRUD-service, which allow you to organaze backend server to keep your music collection.
 You can store `Artists`, `Tranks`, `Albums` as well as `Users`, who have access to the library.
+Use Node v22.11.0 to run app.
 
 ## Downloading
 
@@ -64,6 +65,8 @@ npm run format
 ```
 
 ## API
+
+`You can use swagger on http://localhost:4000/doc`
 
 ### Entities
 
