@@ -165,26 +165,17 @@ export class FavoritesService {
       tracks: new Array<Track>(),
     };
 
-    for (const id of db.favStorage.artists) {
-      const result = await this.artistService.findOne(id);
-      if (!result.errorText) {
-        favs.artists.push(result.data as Artist);
-      }
-    }
+    (await Promise.all(db.favStorage.artists.map(this.artistService.findOne)))
+      .filter((result: DbResult) => !!result.data)
+      .forEach((result: DbResult) => favs.artists.push(result.data as Artist));
 
-    for (const id of db.favStorage.albums) {
-      const result = await this.albumService.findOne(id);
-      if (!result.errorText) {
-        favs.albums.push(result.data as Album);
-      }
-    }
+    (await Promise.all(db.favStorage.albums.map(this.albumService.findOne)))
+      .filter((result: DbResult) => !!result.data)
+      .forEach((result: DbResult) => favs.albums.push(result.data as Album));
 
-    for (const id of db.favStorage.tracks) {
-      const result = await this.trackService.findOne(id);
-      if (!result.errorText) {
-        favs.tracks.push(result.data as Track);
-      }
-    }
+    (await Promise.all(db.favStorage.tracks.map(this.trackService.findOne)))
+      .filter((result: DbResult) => !!result.data)
+      .forEach((result: DbResult) => favs.tracks.push(result.data as Track));
 
     return favs;
   }

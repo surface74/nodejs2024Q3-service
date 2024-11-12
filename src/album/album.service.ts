@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import db from 'src/storage/data.service';
@@ -6,10 +6,18 @@ import { v4 as uuidv4, validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
 import { Album } from './entities/album.entity';
-import { Track } from 'src/track/entities/track.entity';
+import { FavoritesService } from 'src/favorites/favorites.service';
+import { TrackService } from 'src/track/track.service';
 
 @Injectable()
 export class AlbumService {
+  constructor(
+    @Inject(forwardRef(() => TrackService))
+    private trackService: TrackService,
+    @Inject(forwardRef(() => FavoritesService))
+    private favoritesService: FavoritesService,
+  ) {}
+
   async create(createAlbumDto: CreateAlbumDto) {
     const { name, year, artistId } = createAlbumDto;
     const album: Album = {
@@ -82,8 +90,8 @@ export class AlbumService {
         return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
       }
 
-      await this.removeFavAlbum(id);
-      await this.removeTrackAlbum(id);
+      await this.favoritesService.removeAlbum(id);
+      await this.trackService.clearAlbumId(id);
 
       await db.albumStorage.splice(index, 1);
 
@@ -93,21 +101,12 @@ export class AlbumService {
     return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
   }
 
-  async removeFavAlbum(itemId: string) {
-    const index = await db.favStorage.albums.findIndex(
-      (id: string) => itemId === id,
+  async clearArtistId(artistId: string) {
+    const index = await db.albumStorage.findIndex(
+      ({ artistId: id }: Album) => artistId === id,
     );
     if (index > -1) {
-      await db.favStorage.albums.splice(index, 1);
-    }
-  }
-
-  async removeTrackAlbum(id: string) {
-    const index = await db.trackStorage.findIndex(
-      ({ albumId }: Track) => albumId === id,
-    );
-    if (index > -1) {
-      db.trackStorage[index].albumId = null;
+      db.albumStorage[index].artistId = null;
     }
   }
 }

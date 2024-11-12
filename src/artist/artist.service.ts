@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import db from 'src/storage/data.service';
@@ -6,11 +6,21 @@ import { v4 as uuidv4, validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
 import { Artist } from './entities/artist.entity';
-import { Album } from 'src/album/entities/album.entity';
-import { Track } from 'src/track/entities/track.entity';
+import { FavoritesService } from 'src/favorites/favorites.service';
+import { TrackService } from 'src/track/track.service';
+import { AlbumService } from 'src/album/album.service';
 
 @Injectable()
 export class ArtistService {
+  constructor(
+    @Inject(forwardRef(() => AlbumService))
+    private albumService: AlbumService,
+    @Inject(forwardRef(() => TrackService))
+    private trackService: TrackService,
+    @Inject(forwardRef(() => FavoritesService))
+    private favoritesService: FavoritesService,
+  ) {}
+
   async create(createArtistDto: CreateArtistDto) {
     const { name, grammy } = createArtistDto;
     const artist: Artist = {
@@ -84,39 +94,12 @@ export class ArtistService {
       return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
-    await this.removeFavArtist(id);
-    await this.removeAlbumArtist(id);
-    await this.removeTrackArtist(id);
+    await this.favoritesService.removeArtist(id);
+    await this.albumService.clearArtistId(id);
+    await this.trackService.clearArtistId(id);
 
     db.artistStorage.splice(index, 1);
 
     return new DbResult({});
-  }
-
-  async removeFavArtist(itemId: string) {
-    const index = await db.favStorage.artists.findIndex(
-      (id: string) => itemId === id,
-    );
-    if (index > -1) {
-      await db.favStorage.artists.splice(index, 1);
-    }
-  }
-
-  async removeAlbumArtist(id: string) {
-    const index = await db.albumStorage.findIndex(
-      ({ artistId }: Album) => artistId === id,
-    );
-    if (index > -1) {
-      db.albumStorage[index].artistId = null;
-    }
-  }
-
-  async removeTrackArtist(id: string) {
-    const index = await db.trackStorage.findIndex(
-      ({ artistId }: Track) => artistId === id,
-    );
-    if (index > -1) {
-      db.trackStorage[index].artistId = null;
-    }
   }
 }

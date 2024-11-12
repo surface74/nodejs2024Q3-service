@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import db from 'src/storage/data.service';
@@ -6,9 +6,15 @@ import { v4 as uuidv4, validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
 import { Track } from './entities/track.entity';
+import { FavoritesService } from 'src/favorites/favorites.service';
 
 @Injectable()
 export class TrackService {
+  constructor(
+    @Inject(forwardRef(() => FavoritesService))
+    private favoritesService: FavoritesService,
+  ) {}
+
   async create(createTrackDto: CreateTrackDto) {
     const track: Track = {
       id: uuidv4(),
@@ -87,19 +93,28 @@ export class TrackService {
       return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
-    await this.removeFavTrack(id);
+    await this.favoritesService.removeTrack(id);
 
     db.trackStorage.splice(index, 1);
 
     return new DbResult({});
   }
 
-  async removeFavTrack(itemId: string) {
-    const index = await db.favStorage.tracks.findIndex(
-      (id: string) => itemId === id,
+  async clearAlbumId(albumId: string) {
+    const index = await db.trackStorage.findIndex(
+      ({ albumId: id }: Track) => albumId === id,
     );
     if (index > -1) {
-      await db.favStorage.tracks.splice(index, 1);
+      db.trackStorage[index].albumId = null;
+    }
+  }
+
+  async clearArtistId(artistId: string) {
+    const index = await db.trackStorage.findIndex(
+      ({ artistId: id }: Track) => artistId === id,
+    );
+    if (index > -1) {
+      db.trackStorage[index].artistId = null;
     }
   }
 }
