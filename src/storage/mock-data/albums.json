@@ -1,0 +1,26 @@
+[
+  {
+    "id": "801f9aaa-e9b9-4856-92f5-3cf6b9185466",
+    "name": "Renaissance",
+    "year": 2022,
+    "artistId": "4ede540c-3863-4de8-a37c-7428d01b9bb4"
+  },
+  {
+    "id": "e06dafca-6b31-40b5-936c-2a506a8d61d6",
+    "name": "Cowboy Carter",
+    "year": 2024,
+    "artistId": "4ede540c-3863-4de8-a37c-7428d01b9bb4"
+  },
+  {
+    "id": "fd7a320a-ba98-4bcd-b447-09be94db12fd",
+    "name": "25",
+    "year": 2015,
+    "artistId": "db8d49f6-8ce4-4df0-a6a4-2d61a4db90ff"
+  },
+  {
+    "id": "03c8dbf7-c1f1-4daf-9061-5edf1cc57cc9",
+    "name": "30",
+    "year": 2021,
+    "artistId": "db8d49f6-8ce4-4df0-a6a4-2d61a4db90ff"
+  }
+]
