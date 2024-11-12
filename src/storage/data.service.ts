@@ -8,8 +8,10 @@ import * as favs from './mock-data/favorites.json';
 import { Album } from 'src/album/entities/album.entity';
 import { Track } from 'src/track/entities/track.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
+import { Injectable } from '@nestjs/common';
 
-class DataService {
+@Injectable()
+export class DataService {
   static instance: DataService = new DataService();
 
   public userStorage: User[] = new Array<User>();
