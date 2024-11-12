@@ -11,8 +11,8 @@ import { Favorite } from 'src/favorites/entities/favorite.entity';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class DataService {
-  static instance: DataService = new DataService();
+export class TestService {
+  static instance: TestService = new TestService();
 
   public userStorage: User[] = new Array<User>();
   public artistStorage: Artist[] = new Array<Artist>();
@@ -25,42 +25,13 @@ export class DataService {
   };
 
   constructor() {
-    if (!DataService.instance) DataService.instance = this;
+    if (!TestService.instance) TestService.instance = this;
 
     this.fillDatabase();
   }
 
-  public static getInstance(): DataService {
-    return DataService.instance;
-  }
-
-  async createUser(user: User) {
-    await this.userStorage.push(user);
-  }
-
-  async findAllUsers() {
-    return this.userStorage;
-  }
-
-  async findOneUser(id: string) {
-    const index = this.userStorage.findIndex((user: User) => user.id === id);
-    return index > -1 ? this.userStorage[index] : null;
-  }
-
-  async updateUser(updatedUser: User) {
-    const index = this.userStorage.findIndex(
-      (user: User) => user.id === updatedUser.id,
-    );
-    if (index > -1) {
-      this.userStorage[index] = { ...this.userStorage[index], ...updatedUser };
-    }
-  }
-
-  async removeUser(id: string) {
-    const index = this.userStorage.findIndex((user: User) => user.id === id);
-    if (index > -1) {
-      this.userStorage.splice(index, 1);
-    }
+  public static getInstance(): TestService {
+    return TestService.instance;
   }
 
   private fillDatabase() {
@@ -113,4 +84,4 @@ export class DataService {
   }
 }
 
-export default DataService.getInstance();
+export default TestService.getInstance();

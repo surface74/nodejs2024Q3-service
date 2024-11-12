@@ -7,10 +7,12 @@ import { TrackModule } from './track/track.module';
 import { AlbumModule } from './album/album.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { ConfigModule } from '@nestjs/config';
+import { DataModule } from './storage/data.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    DataModule,
     UserModule,
     ArtistModule,
     TrackModule,

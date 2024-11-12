@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import db from 'src/storage/data.service';
+import { DataService } from 'src/storage/data.service';
 import { v4 as uuidv4, validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
@@ -9,6 +9,8 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
+  constructor(private dataService: DataService) {}
+
   async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
     const user: User = {
@@ -19,7 +21,8 @@ export class UserService {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
-    await db.userStorage.push(user);
+
+    await this.dataService.createUser(user);
 
     const cloneUser = { ...user };
     delete cloneUser.password;
@@ -28,11 +31,12 @@ export class UserService {
   }
 
   async findAll() {
-    const result = db.userStorage.map((user: User) => {
+    const result = (await this.dataService.findAllUsers()).map((user: User) => {
       const cloneUser = { ...user };
       delete cloneUser.password;
       return cloneUser;
     });
+
     return new DbResult({ data: result });
   }
 
@@ -41,10 +45,10 @@ export class UserService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const result = await db.userStorage.filter((user: User) => user.id === id);
+    const user = await this.dataService.findOneUser(id);
 
-    if (result.length > 0) {
-      const cloneUser = { ...result[0] };
+    if (user) {
+      const cloneUser = { ...user };
       delete cloneUser.password;
       return new DbResult({ data: cloneUser });
     }
@@ -59,17 +63,13 @@ export class UserService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const index = await db.userStorage.findIndex(
-      (user: User) => user.id === id,
-    );
-
-    if (index < 0) {
+    const user = await this.dataService.findOneUser(id);
+    if (!user) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
     }
 
-    const user: User = db.userStorage[index];
     if (user.password !== updatePasswordDto.oldPassword) {
       return new DbResult({ errorText: ErrorMessage.BAD_PASSWORD });
     }
@@ -77,6 +77,7 @@ export class UserService {
     user.password = updatePasswordDto.newPassword;
     user.updatedAt = Date.now();
     user.version += 1;
+    await this.dataService.updateUser(user);
 
     const cloneUser = { ...user };
     delete cloneUser.password;
@@ -89,15 +90,14 @@ export class UserService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const index = await db.userStorage.findIndex(
-      (user: User) => user.id === id,
-    );
-
-    if (index < 0) {
-      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+    const user = await this.dataService.findOneUser(id);
+    if (!user) {
+      return new DbResult({
+        errorText: ErrorMessage.RECORD_NOT_EXISTS,
+      });
     }
 
-    await db.userStorage.splice(index, 1);
+    await this.dataService.removeUser(id);
 
     return new DbResult({});
   }
