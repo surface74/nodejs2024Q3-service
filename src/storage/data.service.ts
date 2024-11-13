@@ -8,7 +8,7 @@ import * as favs from './mock-data/favorites.json';
 import { Album } from 'src/album/entities/album.entity';
 import { Track } from 'src/track/entities/track.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { IDataEntity } from './types/data-entity.interface';
 
 @Injectable()
@@ -111,7 +111,10 @@ export class DataService {
     const entity = this.albumStorage.find(
       (item: IDataEntity) => item.id === id,
     );
-    return entity || null;
+
+    if (entity) return entity;
+
+    throw new NotFoundException();
   }
 
   async findOneArtist(id: string) {
@@ -137,12 +140,15 @@ export class DataService {
     const index = this.albumStorage.findIndex(
       (item: IDataEntity) => item.id === updatedAlbum.id,
     );
-    if (index > -1) {
-      this.albumStorage[index] = {
-        ...this.albumStorage[index],
-        ...updatedAlbum,
-      };
+
+    if (index === -1) {
+      throw new NotFoundException();
     }
+
+    this.albumStorage[index] = {
+      ...this.albumStorage[index],
+      ...updatedAlbum,
+    };
   }
 
   async updateArtist(updatedArtist: Artist) {
@@ -234,9 +240,15 @@ export class DataService {
   }
 
   async handleRemovalAlbum(albumId: string) {
+    const album: Album = await this.findOneAlbum(albumId);
+    if (!album) {
+      throw new NotFoundException('Album not found');
+    }
+
     const trackIndex = await this.trackStorage.findIndex(
       (item: Track) => albumId === item.albumId,
     );
+
     if (trackIndex > -1) {
       this.trackStorage[trackIndex].albumId = null;
     }
