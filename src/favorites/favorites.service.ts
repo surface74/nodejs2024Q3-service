@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import db from 'src/storage/data.service';
+import { DataService } from 'src/storage/data.service';
 import { validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
@@ -15,6 +15,7 @@ import { TrackService } from 'src/track/track.service';
 @Injectable()
 export class FavoritesService {
   constructor(
+    private dataService: DataService,
     @Inject(forwardRef(() => ArtistService))
     @Inject(forwardRef(() => AlbumService))
     @Inject(forwardRef(() => TrackService))
@@ -28,22 +29,12 @@ export class FavoritesService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const itemIndex = await db.artistStorage.findIndex(
-      (item: Artist) => item.id === itemId,
-    );
-
-    if (itemIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
+    const artist = await this.dataService.findOneArtist(itemId);
+    if (!artist) {
+      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
-    const favIndex = await db.favStorage.artists.findIndex(
-      (id: string) => id === itemId,
-    );
-    if (favIndex < 0) {
-      await db.favStorage.artists.push(itemId);
-    }
+    await this.dataService.addFavArtist(itemId);
 
     return new DbResult({});
   }
@@ -53,22 +44,12 @@ export class FavoritesService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const itemIndex = await db.albumStorage.findIndex(
-      (item: Album) => item.id === itemId,
-    );
-
-    if (itemIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
+    const album = await this.dataService.findOneAlbum(itemId);
+    if (!album) {
+      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
-    const favIndex = await db.favStorage.albums.findIndex(
-      (id: string) => id === itemId,
-    );
-    if (favIndex < 0) {
-      await db.favStorage.albums.push(itemId);
-    }
+    await this.dataService.addFavAlbum(itemId);
 
     return new DbResult({});
   }
@@ -78,22 +59,12 @@ export class FavoritesService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const itemIndex = await db.trackStorage.findIndex(
-      (item: Track) => item.id === itemId,
-    );
-
-    if (itemIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
+    const track = await this.dataService.findOneTrack(itemId);
+    if (!track) {
+      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
-    const favIndex = await db.favStorage.tracks.findIndex(
-      (id: string) => id === itemId,
-    );
-    if (favIndex < 0) {
-      await db.favStorage.tracks.push(itemId);
-    }
+    await this.dataService.addFavTrack(itemId);
 
     return new DbResult({});
   }
@@ -103,17 +74,11 @@ export class FavoritesService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const favIndex = await db.favStorage.artists.findIndex(
-      (id: string) => id === itemId,
-    );
-
-    if (favIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
+    if (!this.dataService.favStorage.artists.includes(itemId)) {
+      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
-    await db.favStorage.artists.splice(favIndex, 1);
+    await this.dataService.removeFavArtist(itemId);
 
     return new DbResult({});
   }
@@ -123,17 +88,11 @@ export class FavoritesService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const favIndex = await db.favStorage.albums.findIndex(
-      (id: string) => id === itemId,
-    );
-
-    if (favIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
+    if (!this.dataService.favStorage.albums.includes(itemId)) {
+      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
-    await db.favStorage.albums.splice(favIndex, 1);
+    await this.dataService.removeFavAlbum(itemId);
 
     return new DbResult({});
   }
@@ -143,17 +102,11 @@ export class FavoritesService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const favIndex = await db.favStorage.tracks.findIndex(
-      (id: string) => id === itemId,
-    );
-
-    if (favIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
+    if (!this.dataService.favStorage.tracks.includes(itemId)) {
+      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
     }
 
-    await db.favStorage.tracks.splice(favIndex, 1);
+    await this.dataService.removeFavTrack(itemId);
 
     return new DbResult({});
   }
@@ -165,15 +118,33 @@ export class FavoritesService {
       tracks: new Array<Track>(),
     };
 
-    (await Promise.all(db.favStorage.artists.map(this.artistService.findOne)))
+    (
+      await Promise.all(
+        this.dataService.favStorage.artists.map(
+          this.artistService.findOne.bind(this),
+        ),
+      )
+    )
       .filter((result: DbResult) => !!result.data)
       .forEach((result: DbResult) => favs.artists.push(result.data as Artist));
 
-    (await Promise.all(db.favStorage.albums.map(this.albumService.findOne)))
+    (
+      await Promise.all(
+        this.dataService.favStorage.albums.map(
+          this.albumService.findOne.bind(this),
+        ),
+      )
+    )
       .filter((result: DbResult) => !!result.data)
       .forEach((result: DbResult) => favs.albums.push(result.data as Album));
 
-    (await Promise.all(db.favStorage.tracks.map(this.trackService.findOne)))
+    (
+      await Promise.all(
+        this.dataService.favStorage.tracks.map(
+          this.trackService.findOne.bind(this),
+        ),
+      )
+    )
       .filter((result: DbResult) => !!result.data)
       .forEach((result: DbResult) => favs.tracks.push(result.data as Track));
 

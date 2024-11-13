@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IDataEntity } from 'src/storage/types/data-entity.interface';
 
-export class Track {
+export class Track implements IDataEntity {
   @ApiProperty({
     description: 'Track ID (UUID v4)',
     example: '5564c9e2-c44b-4d71-b7ce-5362244cd201',

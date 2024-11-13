@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import db from 'src/storage/data.service';
+import { DataService } from 'src/storage/data.service';
 import { v4 as uuidv4, validate } from 'uuid';
 import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { DbResult } from 'src/storage/types/result.types';
@@ -13,6 +13,7 @@ import { AlbumService } from 'src/album/album.service';
 @Injectable()
 export class ArtistService {
   constructor(
+    private dataService: DataService,
     @Inject(forwardRef(() => AlbumService))
     private albumService: AlbumService,
     @Inject(forwardRef(() => TrackService))
@@ -29,14 +30,14 @@ export class ArtistService {
       grammy,
     };
 
-    await db.artistStorage.push(artist);
-    return new DbResult({ data: { ...artist } });
+    await this.dataService.createArtist(artist);
+
+    return new DbResult({ data: artist });
   }
 
   async findAll() {
-    const result = db.artistStorage.map((artist: Artist) => {
-      return { ...artist };
-    });
+    const result = await this.dataService.findAllArtists();
+
     return new DbResult({ data: result });
   }
 
@@ -45,12 +46,10 @@ export class ArtistService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const index = await db.artistStorage.findIndex(
-      (artist: Artist) => artist.id === id,
-    );
+    const artist = await this.dataService.findOneArtist(id);
 
-    if (index > -1) {
-      return new DbResult({ data: { ...db.artistStorage[index] } });
+    if (artist) {
+      return new DbResult({ data: artist });
     }
 
     return new DbResult({
@@ -63,22 +62,22 @@ export class ArtistService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const index = await db.artistStorage.findIndex(
-      (artist: Artist) => artist.id === id,
-    );
+    const artist = await this.dataService.findOneArtist(id);
 
-    if (index < 0) {
+    if (!artist) {
       return new DbResult({
         errorText: ErrorMessage.RECORD_NOT_EXISTS,
       });
     }
 
-    if (updateArtistDto.name !== undefined)
-      db.artistStorage[index].name = updateArtistDto.name;
-    if (updateArtistDto.grammy !== undefined)
-      db.artistStorage[index].grammy = updateArtistDto.grammy;
+    if (updateArtistDto.name) artist.name = updateArtistDto.name;
+    if (updateArtistDto.grammy !== undefined) {
+      artist.grammy = updateArtistDto.grammy;
+    }
 
-    return new DbResult({ data: { ...db.artistStorage[index] } });
+    await this.dataService.updateArtist(artist);
+
+    return new DbResult({ data: artist });
   }
 
   async remove(id: string) {
@@ -86,19 +85,15 @@ export class ArtistService {
       return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
     }
 
-    const index = await db.artistStorage.findIndex(
-      (artist: Artist) => artist.id === id,
-    );
+    const album = await this.dataService.findOneArtist(id);
 
-    if (index < 0) {
-      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+    if (!album) {
+      return new DbResult({
+        errorText: ErrorMessage.RECORD_NOT_EXISTS,
+      });
     }
 
-    await this.favoritesService.removeArtist(id);
-    await this.albumService.clearArtistId(id);
-    await this.trackService.clearArtistId(id);
-
-    db.artistStorage.splice(index, 1);
+    await this.dataService.handleRemovalArtist(id);
 
     return new DbResult({});
   }
