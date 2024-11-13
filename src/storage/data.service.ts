@@ -77,18 +77,22 @@ export class DataService {
 
   async createTrack(track: Track) {
     await this.trackStorage.push(track);
+    return track;
   }
 
   async createArtist(artist: Artist) {
     await this.artistStorage.push(artist);
+    return artist;
   }
 
   async createAlbum(album: Album) {
     await this.albumStorage.push(album);
+    return album;
   }
 
   async createUser(user: User) {
     await this.userStorage.push(user);
+    return user;
   }
 
   async findAllTracks() {
@@ -149,6 +153,8 @@ export class DataService {
       ...this.albumStorage[index],
       ...updatedAlbum,
     };
+
+    return this.albumStorage[index];
   }
 
   async updateArtist(updatedArtist: Artist) {
@@ -161,6 +167,8 @@ export class DataService {
         ...updatedArtist,
       };
     }
+
+    return this.artistStorage[index];
   }
 
   async updateTrack(updatedTrack: Track) {
@@ -173,6 +181,8 @@ export class DataService {
         ...updatedTrack,
       };
     }
+
+    return this.trackStorage[index];
   }
 
   async updateUser(updatedUser: User) {
@@ -182,6 +192,8 @@ export class DataService {
     if (index > -1) {
       this.userStorage[index] = { ...this.userStorage[index], ...updatedUser };
     }
+
+    return this.userStorage[index];
   }
 
   async removeTrack(id: string) {

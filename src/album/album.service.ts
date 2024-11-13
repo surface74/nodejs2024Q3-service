@@ -31,9 +31,7 @@ export class AlbumService {
       artistId: artistId ? artistId : null,
     };
 
-    await this.dataService.createAlbum(album);
-
-    return album;
+    return await this.dataService.createAlbum(album);
   }
 
   async findAll() {
@@ -55,9 +53,7 @@ export class AlbumService {
     if (updateAlbumDto.year) album.year = updateAlbumDto.year;
     if (updateAlbumDto.artistId) album.artistId = updateAlbumDto.artistId;
 
-    await this.dataService.updateAlbum(album);
-
-    return album;
+    return await this.dataService.updateAlbum(album);
   }
 
   async remove(id: string) {

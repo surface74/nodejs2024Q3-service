@@ -39,20 +39,15 @@ export class ArtistController {
     @Body() createArtistDto: CreateArtistDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.artistService.create(createArtistDto);
-    if (result.errorText) {
-      res.status(HttpStatus.BAD_REQUEST);
-      return result.errorText;
-    }
-
     res.status(HttpStatus.CREATED);
-    return result.data;
+
+    return await this.artistService.create(createArtistDto);
   }
 
   @Get()
   @ApiOkResponse({ description: 'OK', type: [Artist] })
   async findAll() {
-    return (await this.artistService.findAll()).data;
+    return await this.artistService.findAll();
   }
 
   @Get(':id')

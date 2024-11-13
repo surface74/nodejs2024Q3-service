@@ -30,15 +30,11 @@ export class ArtistService {
       grammy,
     };
 
-    await this.dataService.createArtist(artist);
-
-    return new DbResult({ data: artist });
+    return await this.dataService.createArtist(artist);
   }
 
   async findAll() {
-    const result = await this.dataService.findAllArtists();
-
-    return new DbResult({ data: result });
+    return await this.dataService.findAllArtists();
   }
 
   async findOne(id: string) {
