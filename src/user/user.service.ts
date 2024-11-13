@@ -1,11 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { DataService } from 'src/storage/data.service';
-import { v4 as uuidv4, validate } from 'uuid';
-import { ErrorMessage } from 'src/storage/types/error-message.enum';
-import { DbResult } from 'src/storage/types/result.types';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
+import { UserResponse } from './entities/user-responce.entity';
 
 @Injectable()
 export class UserService {
@@ -22,56 +25,34 @@ export class UserService {
       updatedAt: Date.now(),
     };
 
-    await this.dataService.createUser(user);
-
-    const cloneUser = { ...user };
-    delete cloneUser.password;
-
-    return new DbResult({ data: cloneUser });
+    return new UserResponse(await this.dataService.createUser(user));
   }
 
   async findAll() {
-    const result = (await this.dataService.findAllUsers()).map((user: User) => {
-      const cloneUser = { ...user };
-      delete cloneUser.password;
-      return cloneUser;
+    const users = (await this.dataService.findAllUsers()).map((user: User) => {
+      return new UserResponse(user);
     });
 
-    return new DbResult({ data: result });
+    return users;
   }
 
   async findOne(id: string) {
-    if (!validate(id)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     const user = await this.dataService.findOneUser(id);
-
-    if (user) {
-      const cloneUser = { ...user };
-      delete cloneUser.password;
-      return new DbResult({ data: cloneUser });
+    if (!user) {
+      throw new NotFoundException();
     }
 
-    return new DbResult({
-      errorText: ErrorMessage.RECORD_NOT_EXISTS,
-    });
+    return new UserResponse(user);
   }
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
-    if (!validate(id)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     const user = await this.dataService.findOneUser(id);
     if (!user) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
+      throw new NotFoundException();
     }
 
     if (user.password !== updatePasswordDto.oldPassword) {
-      return new DbResult({ errorText: ErrorMessage.BAD_PASSWORD });
+      throw new ForbiddenException();
     }
 
     user.password = updatePasswordDto.newPassword;
@@ -79,26 +60,10 @@ export class UserService {
     user.version += 1;
     await this.dataService.updateUser(user);
 
-    const cloneUser = { ...user };
-    delete cloneUser.password;
-
-    return new DbResult({ data: cloneUser });
+    return new UserResponse(user);
   }
 
   async remove(id: string) {
-    if (!validate(id)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
-    const user = await this.dataService.findOneUser(id);
-    if (!user) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
-    }
-
     await this.dataService.removeUser(id);
-
-    return new DbResult({});
   }
 }

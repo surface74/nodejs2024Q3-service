@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { DataService } from 'src/storage/data.service';
 
@@ -29,7 +30,7 @@ export class FavoritesService {
   async addArtist(itemId: string) {
     const artist = await this.dataService.findOneArtist(itemId);
     if (!artist) {
-      throw new NotFoundException();
+      throw new UnprocessableEntityException();
     }
 
     await this.dataService.addFavArtist(itemId);
@@ -38,7 +39,7 @@ export class FavoritesService {
   async addAlbum(itemId: string) {
     const album = await this.dataService.findOneAlbum(itemId);
     if (!album) {
-      throw new NotFoundException();
+      throw new UnprocessableEntityException();
     }
 
     await this.dataService.addFavAlbum(itemId);
@@ -47,7 +48,7 @@ export class FavoritesService {
   async addTrack(itemId: string) {
     const track = await this.dataService.findOneTrack(itemId);
     if (!track) {
-      throw new NotFoundException();
+      throw new UnprocessableEntityException();
     }
 
     await this.dataService.addFavTrack(itemId);

@@ -234,9 +234,11 @@ export class DataService {
     const index = this.userStorage.findIndex(
       (item: IDataEntity) => item.id === id,
     );
-    if (index > -1) {
-      this.userStorage.splice(index, 1);
+    if (index === -1) {
+      throw new NotFoundException();
     }
+
+    this.userStorage.splice(index, 1);
   }
 
   async handleRemovalArtist(artistId: string) {

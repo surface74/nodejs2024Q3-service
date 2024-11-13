@@ -1,7 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IUser } from './user.interface';
+import { Exclude } from 'class-transformer';
 
-export class UserResponce implements Omit<IUser, 'password'> {
+export class UserResponse implements IUser {
+  constructor(user: Partial<UserResponse>) {
+    Object.assign(this, user);
+  }
+
   @ApiProperty({
     description: 'User ID (UUID v4)',
     example: '5564c9e2-c44b-4d71-b7ce-5362244cd201',
@@ -10,6 +15,9 @@ export class UserResponce implements Omit<IUser, 'password'> {
 
   @ApiProperty({ description: 'Login name' })
   login: string;
+
+  @Exclude()
+  password: string;
 
   @ApiProperty({ description: 'Autoincremented version' })
   version: number;

@@ -20,7 +20,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { FavoritesResponse } from './entities/favorites-response.entity';
-import { Messages } from './messages.enum';
+import { Messages } from './enums/messages.enum';
 
 @ApiTags('Favorites')
 @Controller('favs')
