@@ -1,10 +1,13 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { DataService } from 'src/storage/data.service';
-import { v4 as uuidv4, validate } from 'uuid';
-import { ErrorMessage } from 'src/storage/types/error-message.enum';
-import { DbResult } from 'src/storage/types/result.types';
+import { v4 as uuidv4 } from 'uuid';
 import { Artist } from './entities/artist.entity';
 import { FavoritesService } from 'src/favorites/favorites.service';
 import { TrackService } from 'src/track/track.service';
@@ -38,32 +41,14 @@ export class ArtistService {
   }
 
   async findOne(id: string) {
-    if (!validate(id)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
-    const artist = await this.dataService.findOneArtist(id);
-
-    if (artist) {
-      return new DbResult({ data: artist });
-    }
-
-    return new DbResult({
-      errorText: ErrorMessage.RECORD_NOT_EXISTS,
-    });
+    return await this.dataService.findOneArtist(id);
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto) {
-    if (!validate(id)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     const artist = await this.dataService.findOneArtist(id);
 
     if (!artist) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
+      throw new NotFoundException();
     }
 
     if (updateArtistDto.name) artist.name = updateArtistDto.name;
@@ -71,26 +56,10 @@ export class ArtistService {
       artist.grammy = updateArtistDto.grammy;
     }
 
-    await this.dataService.updateArtist(artist);
-
-    return new DbResult({ data: artist });
+    return await this.dataService.updateArtist(artist);
   }
 
   async remove(id: string) {
-    if (!validate(id)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
-    const album = await this.dataService.findOneArtist(id);
-
-    if (!album) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
-    }
-
     await this.dataService.handleRemovalArtist(id);
-
-    return new DbResult({});
   }
 }

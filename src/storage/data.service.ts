@@ -125,7 +125,10 @@ export class DataService {
     const entity = this.artistStorage.find(
       (item: IDataEntity) => item.id === id,
     );
-    return entity || null;
+
+    if (entity) return entity;
+
+    throw new NotFoundException();
   }
 
   async findOneTrack(id: string) {
@@ -161,12 +164,15 @@ export class DataService {
     const index = this.artistStorage.findIndex(
       (item: IDataEntity) => item.id === updatedArtist.id,
     );
-    if (index > -1) {
-      this.artistStorage[index] = {
-        ...this.artistStorage[index],
-        ...updatedArtist,
-      };
+
+    if (index === -1) {
+      throw new NotFoundException();
     }
+
+    this.artistStorage[index] = {
+      ...this.artistStorage[index],
+      ...updatedArtist,
+    };
 
     return this.artistStorage[index];
   }
@@ -233,6 +239,11 @@ export class DataService {
   }
 
   async handleRemovalArtist(artistId: string) {
+    const artist: Artist = await this.findOneArtist(artistId);
+    if (!artist) {
+      throw new NotFoundException();
+    }
+
     const album = await this.albumStorage.find(
       (item: Album) => artistId === item.artistId,
     );
@@ -254,7 +265,7 @@ export class DataService {
   async handleRemovalAlbum(albumId: string) {
     const album: Album = await this.findOneAlbum(albumId);
     if (!album) {
-      throw new NotFoundException('Album not found');
+      throw new NotFoundException();
     }
 
     const trackIndex = await this.trackStorage.findIndex(

@@ -8,13 +8,12 @@ import {
   HttpStatus,
   Res,
   Put,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import { Response } from 'express';
-import { DbResult } from 'src/storage/types/result.types';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -54,27 +53,8 @@ export class ArtistController {
   @ApiOkResponse({ description: 'OK', type: Artist })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async findOne(
-    @Param('id') id: string,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const result: DbResult = await this.artistService.findOne(id);
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.NOT_FOUND);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
-
-    return result.data;
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return await this.artistService.findOne(id);
   }
 
   @Put(':id')
@@ -82,31 +62,10 @@ export class ArtistController {
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async update(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateArtistDto: UpdateArtistDto,
-    @Res({ passthrough: true }) res: Response,
   ) {
-    const result: DbResult = await this.artistService.update(
-      id,
-      updateArtistDto,
-    );
-
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.NOT_FOUND);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
-
-    return result.data;
+    return await this.artistService.update(id, updateArtistDto);
   }
 
   @Delete(':id')
@@ -114,25 +73,10 @@ export class ArtistController {
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async remove(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.artistService.remove(id);
-
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.NOT_FOUND);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
+    await this.artistService.remove(id);
 
     res.status(HttpStatus.NO_CONTENT);
     return '';
