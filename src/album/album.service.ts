@@ -39,12 +39,16 @@ export class AlbumService {
   }
 
   async findOne(id: string) {
-    return await this.dataService.findOneAlbum(id);
+    const album = await this.dataService.findOneAlbum(id);
+    if (!album) {
+      throw new NotFoundException();
+    }
+
+    return album;
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto) {
     const album = await this.dataService.findOneAlbum(id);
-
     if (!album) {
       throw new NotFoundException();
     }

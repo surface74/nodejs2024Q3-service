@@ -36,12 +36,16 @@ export class TrackService {
   }
 
   async findOne(id: string) {
-    return await this.dataService.findOneTrack(id);
+    const track = await this.dataService.findOneTrack(id);
+    if (!track) {
+      throw new NotFoundException();
+    }
+
+    return track;
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto) {
     const track = await this.dataService.findOneTrack(id);
-
     if (!track) {
       throw new NotFoundException();
     }

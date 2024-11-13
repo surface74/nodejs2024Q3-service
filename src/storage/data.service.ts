@@ -116,9 +116,7 @@ export class DataService {
       (item: IDataEntity) => item.id === id,
     );
 
-    if (entity) return entity;
-
-    throw new NotFoundException();
+    return entity || null;
   }
 
   async findOneArtist(id: string) {
@@ -126,20 +124,20 @@ export class DataService {
       (item: IDataEntity) => item.id === id,
     );
 
-    if (entity) return entity;
-
-    throw new NotFoundException();
+    return entity || null;
   }
 
   async findOneTrack(id: string) {
     const entity = this.trackStorage.find(
       (item: IDataEntity) => item.id === id,
     );
+
     return entity || null;
   }
 
   async findOneUser(id: string) {
     const entity = this.userStorage.find((item: IDataEntity) => item.id === id);
+
     return entity || null;
   }
 

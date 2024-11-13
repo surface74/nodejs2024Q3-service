@@ -1,8 +1,10 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { DataService } from 'src/storage/data.service';
-import { validate } from 'uuid';
-import { ErrorMessage } from 'src/storage/types/error-message.enum';
-import { DbResult } from 'src/storage/types/result.types';
 
 import { FavoritesResponse } from './entities/favorites-response.entity';
 import { Album } from 'src/album/entities/album.entity';
@@ -25,90 +27,54 @@ export class FavoritesService {
   ) {}
 
   async addArtist(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     const artist = await this.dataService.findOneArtist(itemId);
     if (!artist) {
-      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+      throw new NotFoundException();
     }
 
     await this.dataService.addFavArtist(itemId);
-
-    return new DbResult({});
   }
 
   async addAlbum(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     const album = await this.dataService.findOneAlbum(itemId);
     if (!album) {
-      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+      throw new NotFoundException();
     }
 
     await this.dataService.addFavAlbum(itemId);
-
-    return new DbResult({});
   }
 
   async addTrack(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     const track = await this.dataService.findOneTrack(itemId);
     if (!track) {
-      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+      throw new NotFoundException();
     }
 
     await this.dataService.addFavTrack(itemId);
-
-    return new DbResult({});
   }
 
   async removeArtist(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     if (!this.dataService.favStorage.artists.includes(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+      throw new NotFoundException();
     }
 
     await this.dataService.removeFavArtist(itemId);
-
-    return new DbResult({});
   }
 
   async removeAlbum(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     if (!this.dataService.favStorage.albums.includes(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+      throw new NotFoundException();
     }
 
     await this.dataService.removeFavAlbum(itemId);
-
-    return new DbResult({});
   }
 
   async removeTrack(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     if (!this.dataService.favStorage.tracks.includes(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.RECORD_NOT_EXISTS });
+      throw new NotFoundException();
     }
 
     await this.dataService.removeFavTrack(itemId);
-
-    return new DbResult({});
   }
 
   async findAll() {
@@ -125,8 +91,8 @@ export class FavoritesService {
         ),
       )
     )
-      .filter((result: DbResult) => !!result.data)
-      .forEach((result: DbResult) => favs.artists.push(result.data as Artist));
+      .filter((item) => !!item)
+      .forEach((item) => favs.artists.push(item as Artist));
 
     (
       await Promise.all(
@@ -135,8 +101,8 @@ export class FavoritesService {
         ),
       )
     )
-      .filter((result: DbResult) => !!result.data)
-      .forEach((result: DbResult) => favs.albums.push(result.data as Album));
+      .filter((item) => !!item)
+      .forEach((item) => favs.albums.push(item as Album));
 
     (
       await Promise.all(
@@ -145,8 +111,8 @@ export class FavoritesService {
         ),
       )
     )
-      .filter((result: DbResult) => !!result.data)
-      .forEach((result: DbResult) => favs.tracks.push(result.data as Track));
+      .filter((item) => !!item)
+      .forEach((item) => favs.tracks.push(item as Track));
 
     return favs;
   }

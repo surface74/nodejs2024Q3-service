@@ -6,11 +6,10 @@ import {
   Delete,
   Res,
   HttpStatus,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 import { Response } from 'express';
-import { ErrorMessage } from 'src/storage/types/error-message.enum';
-import { DbResult } from 'src/storage/types/result.types';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -21,6 +20,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { FavoritesResponse } from './entities/favorites-response.entity';
+import { Messages } from './messages.enum';
 
 @ApiTags('Favorites')
 @Controller('favs')
@@ -28,171 +28,87 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Post('artist/:id')
-  @ApiCreatedResponse({ description: 'Artist added to favorites' })
+  @ApiCreatedResponse({ description: Messages.AlbumAdded })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiUnprocessableEntityResponse({ description: 'Not exist' })
   async addArtist(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result: DbResult = await this.favoritesService.addArtist(id);
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.UNPROCESSABLE_ENTITY);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
+    await this.favoritesService.addArtist(id);
 
     res.status(HttpStatus.CREATED);
-    return result.data;
+    return Messages.AlbumAdded;
   }
 
   @Post('album/:id')
-  @ApiCreatedResponse({ description: 'Artist added to favorites' })
+  @ApiCreatedResponse({ description: Messages.ArtistAdded })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiUnprocessableEntityResponse({ description: 'Not exist' })
   async addAlbum(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result: DbResult = await this.favoritesService.addAlbum(id);
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.UNPROCESSABLE_ENTITY);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
+    await this.favoritesService.addAlbum(id);
 
     res.status(HttpStatus.CREATED);
-    return result.data;
+    return Messages.ArtistAdded;
   }
 
   @Post('track/:id')
-  @ApiCreatedResponse({ description: 'Artist added to favorites' })
+  @ApiCreatedResponse({ description: Messages.TrackAdded })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiUnprocessableEntityResponse({ description: 'Not exist' })
   async addTrack(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result: DbResult = await this.favoritesService.addTrack(id);
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.UNPROCESSABLE_ENTITY);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
+    await this.favoritesService.addTrack(id);
 
     res.status(HttpStatus.CREATED);
-    return result.data;
+    return Messages.TrackAdded;
   }
 
   @Delete('artist/:id')
-  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiNoContentResponse({ description: Messages.ArtistRemoved })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async removeArtist(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result: DbResult = await this.favoritesService.removeArtist(id);
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.NOT_FOUND);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
+    await this.favoritesService.removeArtist(id);
 
     res.status(HttpStatus.NO_CONTENT);
-    return result.data;
+    return Messages.ArtistRemoved;
   }
 
   @Delete('album/:id')
-  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiNoContentResponse({ description: Messages.AlbumRemoved })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async removeAlbum(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result: DbResult = await this.favoritesService.removeAlbum(id);
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.NOT_FOUND);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
+    await this.favoritesService.removeAlbum(id);
 
     res.status(HttpStatus.NO_CONTENT);
-    return result.data;
+    return Messages.AlbumRemoved;
   }
 
   @Delete('track/:id')
-  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiNoContentResponse({ description: Messages.TrackRemoved })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async removeTrack(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result: DbResult = await this.favoritesService.removeTrack(id);
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.NOT_FOUND);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
+    await this.favoritesService.removeTrack(id);
 
     res.status(HttpStatus.NO_CONTENT);
-    return result.data;
+    return Messages.TrackRemoved;
   }
 
   @Get()
