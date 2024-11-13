@@ -181,12 +181,15 @@ export class DataService {
     const index = this.trackStorage.findIndex(
       (item: IDataEntity) => item.id === updatedTrack.id,
     );
-    if (index > -1) {
-      this.trackStorage[index] = {
-        ...this.trackStorage[index],
-        ...updatedTrack,
-      };
+
+    if (index === -1) {
+      throw new NotFoundException();
     }
+
+    this.trackStorage[index] = {
+      ...this.trackStorage[index],
+      ...updatedTrack,
+    };
 
     return this.trackStorage[index];
   }
@@ -278,6 +281,16 @@ export class DataService {
 
     await this.removeFavAlbum(albumId);
     await this.removeAlbum(albumId);
+  }
+
+  async handleRemovalTrack(trackId: string) {
+    const track = await this.findOneTrack(trackId);
+    if (!track) {
+      throw new NotFoundException();
+    }
+
+    await this.removeFavTrack(trackId);
+    await this.removeTrack(trackId);
   }
 
   private fillDatabase() {

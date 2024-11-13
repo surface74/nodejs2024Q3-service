@@ -1,10 +1,13 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { DataService } from 'src/storage/data.service';
-import { v4 as uuidv4, validate } from 'uuid';
-import { ErrorMessage } from 'src/storage/types/error-message.enum';
-import { DbResult } from 'src/storage/types/result.types';
+import { v4 as uuidv4 } from 'uuid';
 import { Track } from './entities/track.entity';
 import { FavoritesService } from 'src/favorites/favorites.service';
 
@@ -25,44 +28,22 @@ export class TrackService {
       duration: createTrackDto.duration,
     };
 
-    await this.dataService.createTrack(track);
-
-    return new DbResult({ data: track });
+    return await this.dataService.createTrack(track);
   }
 
   async findAll() {
-    const result = await this.dataService.findAllTracks();
-
-    return new DbResult({ data: result });
+    return await this.dataService.findAllTracks();
   }
 
   async findOne(id: string) {
-    if (!validate(id)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
-    const track = await this.dataService.findOneTrack(id);
-
-    if (track) {
-      return new DbResult({ data: track });
-    }
-
-    return new DbResult({
-      errorText: ErrorMessage.RECORD_NOT_EXISTS,
-    });
+    return await this.dataService.findOneTrack(id);
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto) {
-    if (!validate(id)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
     const track = await this.dataService.findOneTrack(id);
 
     if (!track) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
+      throw new NotFoundException();
     }
 
     if (updateTrackDto.name) track.name = updateTrackDto.name;
@@ -70,25 +51,10 @@ export class TrackService {
     if (updateTrackDto.albumId) track.albumId = updateTrackDto.albumId;
     if (updateTrackDto.duration) track.duration = updateTrackDto.duration;
 
-    return new DbResult({ data: track });
+    return await this.dataService.updateTrack(track);
   }
 
   async remove(id: string) {
-    if (!validate(id)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
-    }
-
-    const track = await this.dataService.findOneTrack(id);
-
-    if (!track) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
-    }
-
-    await this.favoritesService.removeTrack(id);
-    await this.dataService.removeTrack(id);
-
-    return new DbResult({});
+    await this.dataService.handleRemovalTrack(id);
   }
 }
