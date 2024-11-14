@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IDataEntity } from 'src/storage/types/data-entity.interface';
+import { IDataEntity } from 'src/database/types/data-entity.interface';
 
 export class Track implements IDataEntity {
   @ApiProperty({

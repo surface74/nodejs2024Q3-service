@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { DataService } from 'src/storage/data.service';
+import { DataService } from 'src/database/data.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Artist } from './entities/artist.entity';
 import { FavoritesService } from 'src/favorites/favorites.service';

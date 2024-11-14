@@ -4,7 +4,7 @@ import { ArtistController } from './artist.controller';
 import { FavoritesModule } from 'src/favorites/favorites.module';
 import { AlbumModule } from 'src/album/album.module';
 import { TrackModule } from 'src/track/track.module';
-import { DataModule } from 'src/storage/data.module';
+import { DataModule } from 'src/database/data.module';
 
 @Module({
   imports: [

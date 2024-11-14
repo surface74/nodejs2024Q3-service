@@ -3,7 +3,7 @@ import { AlbumService } from './album.service';
 import { AlbumController } from './album.controller';
 import { FavoritesModule } from 'src/favorites/favorites.module';
 import { TrackModule } from 'src/track/track.module';
-import { DataModule } from 'src/storage/data.module';
+import { DataModule } from 'src/database/data.module';
 
 @Module({
   imports: [

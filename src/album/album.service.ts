@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { DataService } from 'src/storage/data.service';
+import { DataService } from 'src/database/data.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Album } from './entities/album.entity';
 import { FavoritesService } from 'src/favorites/favorites.service';

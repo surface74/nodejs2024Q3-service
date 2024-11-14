@@ -5,7 +5,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { DataService } from 'src/storage/data.service';
+import { DataService } from 'src/database/data.service';
 
 import { FavoritesResponse } from './entities/favorites-response.entity';
 import { Album } from 'src/album/entities/album.entity';

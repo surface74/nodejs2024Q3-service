@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { DataService } from 'src/storage/data.service';
+import { DataService } from 'src/database/data.service';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { UserResponse } from './entities/user-responce.entity';
