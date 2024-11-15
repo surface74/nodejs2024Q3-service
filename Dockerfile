@@ -4,9 +4,9 @@ EXPOSE 4000
 
 WORKDIR /usr/app/server
 
-COPY package.json .
+COPY node_modules node_modules
 
-COPY . .
+COPY dist dist
 
-CMD ["sh"]
+CMD ["node", "dist/main"]
 
