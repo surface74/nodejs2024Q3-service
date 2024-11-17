@@ -42,6 +42,10 @@ export class DataService {
     tracks: new Array<string>(),
   };
 
+  async findFavorites() {
+    return this.favsRepository.find();
+  }
+
   async removeFavArtist(itemId: string) {
     const index = this.favStorage.artists.findIndex(
       (id: string) => id === itemId,
@@ -85,145 +89,127 @@ export class DataService {
   }
 
   async addFavTrack(id: string) {
-    if (!this.favStorage.tracks.includes(id)) {
-      this.favStorage.tracks.push(id);
+    const favs = await this.favsRepository.find();
+    // const favId = favs.length > 0 ? favs[0].id : uuidv4();
+    let favorite: Favorite;
+
+    if (favs.length) {
+      favorite = favs[0];
+      if (!favorite.tracks.includes(id)) {
+        favorite.tracks.push(id);
+      }
+    } else {
+      favorite = {
+        id: uuidv4(),
+        tracks: new Array<string>(),
+        albums: new Array<string>(),
+        artists: new Array<string>(),
+      };
+      favorite.tracks.push(id);
     }
+
+    this.favsRepository.save(favorite);
   }
 
   async createTrack(track: Track) {
-    await this.trackStorage.push(track);
-    return track;
+    return await this.tracksRepository.save(track);
   }
 
   async createArtist(artist: Artist) {
-    await this.artistStorage.push(artist);
-    return artist;
+    return await this.artistsRepository.save(artist);
   }
 
   async createAlbum(album: Album) {
-    await this.albumStorage.push(album);
-    return album;
+    return await this.albumsRepository.save(album);
   }
 
   async createUser(user: User) {
-    await this.userStorage.push(user);
-    return user;
+    return await this.usersRepository.save(user);
   }
 
   async findAllTracks() {
-    return this.trackStorage;
+    return this.tracksRepository.find();
   }
 
   async findAllAlbums() {
-    return this.albumStorage;
+    return this.albumsRepository.find();
   }
 
   async findAllArtists() {
-    return this.artistStorage;
+    return this.artistsRepository.find();
   }
 
   async findAllUsers() {
-    return this.userStorage;
+    return this.usersRepository.find();
   }
 
   async findOneAlbum(id: string) {
-    const entity = this.albumStorage.find(
-      (item: IDataEntity) => item.id === id,
-    );
-
-    return entity || null;
+    return this.albumsRepository.findOneBy({ id });
   }
 
   async findOneArtist(id: string) {
-    const entity = this.artistStorage.find(
-      (item: IDataEntity) => item.id === id,
-    );
-
-    return entity || null;
+    return this.artistsRepository.findOneBy({ id });
   }
 
   async findOneTrack(id: string) {
-    const entity = this.trackStorage.find(
-      (item: IDataEntity) => item.id === id,
-    );
-
-    return entity || null;
+    return this.tracksRepository.findOneBy({ id });
   }
 
   async findOneUser(id: string) {
-    const entity = this.userStorage.find((item: IDataEntity) => item.id === id);
-
-    return entity || null;
+    return this.usersRepository.findOneBy({ id });
   }
 
   async updateAlbum(updatedAlbum: Album) {
-    const index = this.albumStorage.findIndex(
-      (item: IDataEntity) => item.id === updatedAlbum.id,
-    );
+    const entity = await this.albumsRepository.findOneBy({
+      id: updatedAlbum.id,
+    });
 
-    if (index === -1) {
+    if (!entity) {
       throw new NotFoundException();
     }
 
-    this.albumStorage[index] = {
-      ...this.albumStorage[index],
-      ...updatedAlbum,
-    };
-
-    return this.albumStorage[index];
+    return this.albumsRepository.save({ ...entity, ...updatedAlbum });
   }
 
   async updateArtist(updatedArtist: Artist) {
-    const index = this.artistStorage.findIndex(
-      (item: IDataEntity) => item.id === updatedArtist.id,
-    );
+    const entity = await this.artistsRepository.findOneBy({
+      id: updatedArtist.id,
+    });
 
-    if (index === -1) {
+    if (!entity) {
       throw new NotFoundException();
     }
 
-    this.artistStorage[index] = {
-      ...this.artistStorage[index],
-      ...updatedArtist,
-    };
-
-    return this.artistStorage[index];
+    return this.artistsRepository.save({ ...entity, ...updatedArtist });
   }
 
   async updateTrack(updatedTrack: Track) {
-    const index = this.trackStorage.findIndex(
-      (item: IDataEntity) => item.id === updatedTrack.id,
-    );
+    const entity = await this.tracksRepository.findOneBy({
+      id: updatedTrack.id,
+    });
 
-    if (index === -1) {
+    if (!entity) {
       throw new NotFoundException();
     }
 
-    this.trackStorage[index] = {
-      ...this.trackStorage[index],
-      ...updatedTrack,
-    };
-
-    return this.trackStorage[index];
+    return this.tracksRepository.save({ ...entity, ...updatedTrack });
   }
 
   async updateUser(updatedUser: User) {
-    const index = this.userStorage.findIndex(
-      (user: IDataEntity) => user.id === updatedUser.id,
-    );
-    if (index > -1) {
-      this.userStorage[index] = { ...this.userStorage[index], ...updatedUser };
+    const entity = await this.usersRepository.findOneBy({ id: updatedUser.id });
+
+    if (!entity) {
+      throw new NotFoundException();
     }
 
-    return this.userStorage[index];
+    return this.usersRepository.save({ ...entity, ...updatedUser });
   }
 
   async removeTrack(id: string) {
-    const index = this.trackStorage.findIndex(
-      (item: IDataEntity) => item.id === id,
-    );
-    if (index > -1) {
-      this.trackStorage.splice(index, 1);
+    const entity = await this.tracksRepository.findOneBy({ id });
+
+    if (entity) {
+      this.tracksRepository.remove(entity);
     }
   }
 

@@ -79,11 +79,15 @@ export class FavoritesService {
   }
 
   async findAll() {
+    const favorites = await this.dataService.findFavorites();
+
     const favs: FavoritesResponse = {
       artists: new Array<Artist>(),
       albums: new Array<Album>(),
       tracks: new Array<Track>(),
     };
+
+    if (!favorites.length) return favs;
 
     (
       await Promise.all(
