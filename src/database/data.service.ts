@@ -5,27 +5,42 @@ import * as artists from './mock-data/artists.json';
 import * as albums from './mock-data/albums.json';
 import * as tracks from './mock-data/tracks.json';
 import * as favs from './mock-data/favorites.json';
+import { v4 as uuidv4 } from 'uuid';
 import { Album } from 'src/album/entities/album.entity';
 import { Track } from 'src/track/entities/track.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { IDataEntity } from './types/data-entity.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class DataService {
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    @InjectRepository(Album)
+    private albumsRepository: Repository<Album>,
+    @InjectRepository(Artist)
+    private artistsRepository: Repository<Artist>,
+    @InjectRepository(Track)
+    private tracksRepository: Repository<Track>,
+    @InjectRepository(Favorite)
+    private favsRepository: Repository<Favorite>,
+  ) {
+    this.fillDatabase();
+  }
+
   public userStorage: User[] = new Array<User>();
   public artistStorage: Artist[] = new Array<Artist>();
   public albumStorage: Album[] = new Array<Album>();
   public trackStorage: Track[] = new Array<Track>();
   public favStorage: Favorite = {
+    id: uuidv4(),
     artists: new Array<string>(),
     albums: new Array<string>(),
     tracks: new Array<string>(),
   };
-
-  constructor() {
-    this.fillDatabase();
-  }
 
   async removeFavArtist(itemId: string) {
     const index = this.favStorage.artists.findIndex(
@@ -293,51 +308,77 @@ export class DataService {
     await this.removeTrack(trackId);
   }
 
-  private fillDatabase() {
-    this.fillUsers();
-    this.fillArtists();
-    this.fillAlbums();
-    this.fillTracks();
-    this.fillFavs();
+  private async fillDatabase() {
+    await this.fillUsers();
+    await this.fillArtists();
+    await this.fillAlbums();
+    await this.fillTracks();
+    await this.fillFavs();
   }
 
-  private fillFavs(): void {
+  private async fillFavs() {
     favs.albums.forEach((id: string) => this.favStorage.albums.push(id));
     favs.artists.forEach((id: string) => this.favStorage.artists.push(id));
     favs.tracks.forEach((id: string) => this.favStorage.tracks.push(id));
+
+    const favorites = await this.favsRepository.find();
+    const id = favorites.length ? favorites[0].id : uuidv4();
+
+    const favorite: Favorite = {
+      id,
+      albums: favs.albums,
+      artists: favs.artists,
+      tracks: favs.tracks,
+    };
+
+    await this.favsRepository.save(favorite);
   }
 
   private fillTracks(): void {
-    tracks.forEach((track: Track) => this.trackStorage.push(track));
+    tracks.forEach(async (track: Track) => {
+      await this.tracksRepository.save(track);
+
+      this.trackStorage.push(track);
+    });
   }
 
   private fillAlbums(): void {
-    albums.forEach((album: Album) => this.albumStorage.push(album));
+    albums.forEach(async (album: Album) => {
+      await this.albumsRepository.save(album);
+
+      this.albumStorage.push(album);
+    });
   }
 
   private fillArtists(): void {
-    artists.forEach((artist: Pick<Artist, 'id' | 'name' | 'grammy'>) => {
+    artists.forEach(async (artist: Pick<Artist, 'id' | 'name' | 'grammy'>) => {
       const { id, name, grammy } = artist;
       const newArtist = {
         id,
         name,
         grammy,
       };
+
+      await this.artistsRepository.save(newArtist);
+
       this.artistStorage.push(newArtist);
     });
   }
 
   private fillUsers(): void {
-    users.forEach((user: Pick<User, 'id' | 'login' | 'password'>) => {
+    users.forEach(async (user: Pick<User, 'id' | 'login' | 'password'>) => {
       const { id, login, password } = user;
       const newUser = {
         id,
         login,
         password,
-        version: 0,
+        version: 1,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
+
+      await this.usersRepository.save(newUser);
+
       this.userStorage.push(newUser);
     });
   }

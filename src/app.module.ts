@@ -10,6 +10,10 @@ import { ConfigModule } from '@nestjs/config';
 import { DataModule } from './database/data.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entities/user.entity';
+import { Album } from './album/entities/album.entity';
+import { Artist } from './artist/entities/artist.entity';
+import { Track } from './track/entities/track.entity';
+import { Favorite } from './favorites/entities/favorite.entity';
 
 @Module({
   imports: [
@@ -22,12 +26,12 @@ import { User } from './user/entities/user.entity';
     FavoritesModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5433,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'postgres',
-      entities: [User],
+      host: process.env.POSTGRES_HOST_DOMAIN || 'localhost',
+      port: +(process.env.POSTGRES_HOST_PORT || '5432'),
+      username: process.env.POSTGRES_USER || 'postgres',
+      password: process.env.POSTGRES_PASSWORD || 'postgres',
+      database: process.env.POSTGRES_DB || 'postgres',
+      entities: [User, Album, Artist, Track, Favorite],
       synchronize: true,
     }),
   ],
