@@ -8,17 +8,33 @@ services:
   #   depends_on:
   #     - srv
 
-  srv:
-    build: .
-    restart: always
+  # srv:
+  #   build: .
+  #   restart: always
+  #   ports:
+  #     - ${PORT}:${PORT}
+  #   environment:
+  #     - PORT=${PORT}
+  #   networks:
+  #     - frontend
+  #   volumes:
+  #     - ./postgres-data:/usr/app/postgres-data/
+  postgres:
+    image: postgres:17-alpine3.20
+    container_name: postgres_db
+    restart: unless-stopped
     ports:
-      - ${PORT}:${PORT}
+      - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
     environment:
-      - PORT=${PORT}
-    networks:
-      - frontend
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: '/usr/app/postgres-data/'
     volumes:
       - ./postgres-data:/usr/app/postgres-data/
+
+volumes:
+  postgres-data:
 
 networks:
   frontend:

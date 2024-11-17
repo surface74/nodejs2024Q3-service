@@ -8,6 +8,8 @@ import { AlbumModule } from './album/album.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { ConfigModule } from '@nestjs/config';
 import { DataModule } from './database/data.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './user/entities/user.entity';
 
 @Module({
   imports: [
@@ -18,6 +20,16 @@ import { DataModule } from './database/data.module';
     TrackModule,
     AlbumModule,
     FavoritesModule,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5433,
+      username: 'postgres',
+      password: 'postgres',
+      database: 'postgres',
+      entities: [User],
+      synchronize: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
