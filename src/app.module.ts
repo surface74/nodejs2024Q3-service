@@ -26,8 +26,8 @@ import { Favorite } from './favorites/entities/favorite.entity';
     FavoritesModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.POSTGRES_DOMAIN || 'localhost',
-      port: +(process.env.POSTGRES_HOST_PORT || '5432'),
+      host: 'postgres_container',
+      port: +(process.env.POSTGRES_PORT || '5432'),
       username: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'postgres',
       database: process.env.POSTGRES_DB || 'postgres',
