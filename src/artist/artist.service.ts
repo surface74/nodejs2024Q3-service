@@ -41,7 +41,7 @@ export class ArtistService {
   }
 
   async findOne(id: string) {
-    return this.dataService.findOneArtist(id);
+    return await this.dataService.findOneArtist(id);
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto) {

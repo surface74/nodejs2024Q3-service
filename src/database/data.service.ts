@@ -145,7 +145,8 @@ export class DataService {
   }
 
   async createArtist(artist: Artist) {
-    return await this.artistsRepository.save(artist);
+    const entity = await this.artistsRepository.save(artist);
+    return entity;
   }
 
   async createAlbum(album: Album) {
@@ -255,14 +256,21 @@ export class DataService {
     });
 
     const tracks = await this.tracksRepository.find({ where: { artistId } });
+    console.log('tracks: ', tracks.length);
     tracks.forEach(async (track) => {
       await this.tracksRepository.save({ ...track, artistId: null });
     });
 
-    await this.removeFavArtist(artistId);
+    const tracks2 = await this.tracksRepository.find({ where: { artistId } });
+    console.log('tracks: ', tracks2.length);
+
+    try {
+      await this.removeFavArtist(artistId);
+    } catch {}
 
     const artist = await this.findOneArtist(artistId);
-    await this.artistsRepository.remove(artist);
+    const toRemoveEntity = await this.artistsRepository.remove(artist);
+    return toRemoveEntity;
   }
 
   async handleRemovalAlbum(albumId: string) {
