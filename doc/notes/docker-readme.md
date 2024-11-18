@@ -63,3 +63,4 @@ Some number of images can be pushed as one image `> docker-compose push`
 - [vulnerability scanning](docs.docker.com/engine/scan)<br>
 - [multistage build](docs.docker.com/develop-images/multistage-build)<br>
 - [Postgres param](hub.docker.com/_/postgres)<br>
+- docker scout cves your_docker_name/your_image

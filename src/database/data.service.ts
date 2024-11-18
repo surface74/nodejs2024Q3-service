@@ -32,13 +32,8 @@ export class DataService {
     }
   }
 
-  public userStorage: User[] = new Array<User>();
-  public artistStorage: Artist[] = new Array<Artist>();
-  public albumStorage: Album[] = new Array<Album>();
-  public trackStorage: Track[] = new Array<Track>();
-
   async findFavorites() {
-    return this.favsRepository.find();
+    return await this.favsRepository.find();
   }
 
   async removeFavArtist(itemId: string) {
@@ -49,7 +44,7 @@ export class DataService {
       const index = favorite.artists.findIndex((id) => itemId === id);
       if (index > -1) {
         favorite.artists.splice(index, 1);
-        this.favsRepository.save(favorite);
+        await this.favsRepository.save(favorite);
         return favorite;
       }
     }
@@ -65,7 +60,7 @@ export class DataService {
       const index = favorite.tracks.findIndex((id) => itemId === id);
       if (index > -1) {
         favorite.tracks.splice(index, 1);
-        this.favsRepository.save(favorite);
+        await this.favsRepository.save(favorite);
         return favorite;
       }
     }
@@ -81,7 +76,7 @@ export class DataService {
       const index = favorite.albums.findIndex((id) => itemId === id);
       if (index > -1) {
         favorite.albums.splice(index, 1);
-        this.favsRepository.save(favorite);
+        await this.favsRepository.save(favorite);
         return favorite;
       }
     }
@@ -97,12 +92,12 @@ export class DataService {
       const favorite = favs[0];
       if (!favorite.artists.includes(id)) {
         favorite.artists.push(id);
-        this.favsRepository.save(favorite);
+        await this.favsRepository.save(favorite);
       }
     } else {
       const favorite = this.getNewFavorite();
       favorite.artists.push(id);
-      this.favsRepository.save(favorite);
+      await this.favsRepository.save(favorite);
     }
   }
 
@@ -114,12 +109,12 @@ export class DataService {
       const favorite = favs[0];
       if (!favorite.albums.includes(id)) {
         favorite.albums.push(id);
-        this.favsRepository.save(favorite);
+        await this.favsRepository.save(favorite);
       }
     } else {
       const favorite = this.getNewFavorite();
       favorite.albums.push(id);
-      this.favsRepository.save(favorite);
+      await this.favsRepository.save(favorite);
     }
   }
 
@@ -131,12 +126,12 @@ export class DataService {
       const favorite = favs[0];
       if (!favorite.tracks.includes(id)) {
         favorite.tracks.push(id);
-        this.favsRepository.save(favorite);
+        await this.favsRepository.save(favorite);
       }
     } else {
       const favorite = this.getNewFavorite();
       favorite.tracks.push(id);
-      this.favsRepository.save(favorite);
+      await this.favsRepository.save(favorite);
     }
   }
 
@@ -145,8 +140,7 @@ export class DataService {
   }
 
   async createArtist(artist: Artist) {
-    const entity = await this.artistsRepository.save(artist);
-    return entity;
+    return await this.artistsRepository.save(artist);
   }
 
   async createAlbum(album: Album) {
@@ -317,16 +311,12 @@ export class DataService {
   private fillTracks(): void {
     tracks.forEach(async (track: Track) => {
       await this.tracksRepository.save(track);
-
-      this.trackStorage.push(track);
     });
   }
 
   private fillAlbums(): void {
     albums.forEach(async (album: Album) => {
       await this.albumsRepository.save(album);
-
-      this.albumStorage.push(album);
     });
   }
 
@@ -340,8 +330,6 @@ export class DataService {
       };
 
       await this.artistsRepository.save(newArtist);
-
-      this.artistStorage.push(newArtist);
     });
   }
 
@@ -358,8 +346,6 @@ export class DataService {
       };
 
       await this.usersRepository.save(newUser);
-
-      this.userStorage.push(newUser);
     });
   }
 

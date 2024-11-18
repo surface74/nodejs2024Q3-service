@@ -51,34 +51,32 @@ export class FavoritesService {
 
   async addTrack(id: string) {
     try {
-      await this.dataService.findOneTrack(id);
+      await this.dataService.addFavTrack(id);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new UnprocessableEntityException();
       }
       throw error;
     }
-
-    await this.dataService.addFavTrack(id);
   }
 
   async removeArtist(itemId: string) {
     const entity = await this.dataService.removeFavArtist(itemId);
-    if (entity) {
+    if (!entity) {
       throw new NotFoundException();
     }
   }
 
   async removeAlbum(itemId: string) {
     const entity = await this.dataService.removeFavAlbum(itemId);
-    if (entity) {
+    if (!entity) {
       throw new NotFoundException();
     }
   }
 
   async removeTrack(itemId: string) {
     const entity = await this.dataService.removeFavTrack(itemId);
-    if (entity) {
+    if (!entity) {
       throw new NotFoundException();
     }
   }
@@ -96,29 +94,18 @@ export class FavoritesService {
 
     const favorite = favorites[0];
 
-    (
-      await Promise.all(
-        favorite.artists.map(this.artistService.findOne.bind(this)),
-      )
-    )
-      .filter((item) => !!item)
-      .forEach((item) => favs.artists.push(item as Artist));
+    for (const id of favorite.artists) {
+      favs.artists.push(await this.artistService.findOne(id));
+    }
+    for (const id of favorite.albums) {
+      favs.albums.push(await this.albumService.findOne(id));
+    }
+    for (const id of favorite.tracks) {
+      const entity = await this.trackService.findOne(id);
+      entity.duration = +entity.duration;
 
-    (
-      await Promise.all(
-        favorite.albums.map(this.albumService.findOne.bind(this)),
-      )
-    )
-      .filter((item) => !!item)
-      .forEach((item) => favs.albums.push(item as Album));
-
-    (
-      await Promise.all(
-        favorite.tracks.map(this.trackService.findOne.bind(this)),
-      )
-    )
-      .filter((item) => !!item)
-      .forEach((item) => favs.tracks.push(item as Track));
+      favs.tracks.push(entity);
+    }
 
     return favs;
   }
