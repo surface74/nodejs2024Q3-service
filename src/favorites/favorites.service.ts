@@ -27,54 +27,50 @@ export class FavoritesService {
     private trackService: TrackService,
   ) {}
 
-  async addArtist(itemId: string) {
-    const artist = await this.dataService.findOneArtist(itemId);
-    if (!artist) {
-      throw new UnprocessableEntityException();
+  async addArtist(id: string) {
+    try {
+      await this.dataService.addFavArtist(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new UnprocessableEntityException();
+      }
+      throw error;
     }
-
-    await this.dataService.addFavArtist(itemId);
   }
 
-  async addAlbum(itemId: string) {
-    const album = await this.dataService.findOneAlbum(itemId);
-    if (!album) {
-      throw new UnprocessableEntityException();
+  async addAlbum(id: string) {
+    try {
+      await this.dataService.addFavAlbum(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new UnprocessableEntityException();
+      }
+      throw error;
     }
-
-    await this.dataService.addFavAlbum(itemId);
   }
 
-  async addTrack(itemId: string) {
-    const track = await this.dataService.findOneTrack(itemId);
-    if (!track) {
-      throw new UnprocessableEntityException();
+  async addTrack(id: string) {
+    try {
+      await this.dataService.findOneTrack(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new UnprocessableEntityException();
+      }
+      throw error;
     }
 
-    await this.dataService.addFavTrack(itemId);
+    await this.dataService.addFavTrack(id);
   }
 
   async removeArtist(itemId: string) {
-    if (!this.dataService.favStorage.artists.includes(itemId)) {
-      throw new NotFoundException();
-    }
-
     await this.dataService.removeFavArtist(itemId);
   }
 
   async removeAlbum(itemId: string) {
-    if (!this.dataService.favStorage.albums.includes(itemId)) {
-      throw new NotFoundException();
-    }
-
     await this.dataService.removeFavAlbum(itemId);
   }
 
   async removeTrack(itemId: string) {
-    if (!this.dataService.favStorage.tracks.includes(itemId)) {
-      throw new NotFoundException();
-    }
-
     await this.dataService.removeFavTrack(itemId);
   }
 
@@ -89,11 +85,11 @@ export class FavoritesService {
 
     if (!favorites.length) return favs;
 
+    const favorite = favorites[0];
+
     (
       await Promise.all(
-        this.dataService.favStorage.artists.map(
-          this.artistService.findOne.bind(this),
-        ),
+        favorite.artists.map(this.artistService.findOne.bind(this)),
       )
     )
       .filter((item) => !!item)
@@ -101,9 +97,7 @@ export class FavoritesService {
 
     (
       await Promise.all(
-        this.dataService.favStorage.albums.map(
-          this.albumService.findOne.bind(this),
-        ),
+        favorite.albums.map(this.albumService.findOne.bind(this)),
       )
     )
       .filter((item) => !!item)
@@ -111,9 +105,7 @@ export class FavoritesService {
 
     (
       await Promise.all(
-        this.dataService.favStorage.tracks.map(
-          this.trackService.findOne.bind(this),
-        ),
+        favorite.tracks.map(this.trackService.findOne.bind(this)),
       )
     )
       .filter((item) => !!item)

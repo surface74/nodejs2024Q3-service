@@ -22,7 +22,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "docker:srv-build": "docker build . -t surface74/rest-server:latest",
     "docker:db-build": "docker build ./postgres -t surface74/postgres:latest",
-    "docker:srv-start": "docker run -d --name server -p 4000:4000 surface74/rest-server"
+    "docker:srv-start": "docker run -d --name server -p 4000:4000 surface74/rest-server:latest"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.7",

@@ -41,12 +41,7 @@ export class ArtistService {
   }
 
   async findOne(id: string) {
-    const artist = await this.dataService.findOneArtist(id);
-    if (!artist) {
-      throw new NotFoundException();
-    }
-
-    return artist;
+    return this.dataService.findOneArtist(id);
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto) {

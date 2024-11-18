@@ -28,7 +28,7 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Post('artist/:id')
-  @ApiCreatedResponse({ description: Messages.AlbumAdded })
+  @ApiCreatedResponse({ description: Messages.ArtistAdded })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiUnprocessableEntityResponse({ description: 'Not exist' })
   async addArtist(
@@ -38,11 +38,11 @@ export class FavoritesController {
     await this.favoritesService.addArtist(id);
 
     res.status(HttpStatus.CREATED);
-    return Messages.AlbumAdded;
+    return Messages.ArtistAdded;
   }
 
   @Post('album/:id')
-  @ApiCreatedResponse({ description: Messages.ArtistAdded })
+  @ApiCreatedResponse({ description: Messages.AlbumAdded })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiUnprocessableEntityResponse({ description: 'Not exist' })
   async addAlbum(
@@ -52,7 +52,7 @@ export class FavoritesController {
     await this.favoritesService.addAlbum(id);
 
     res.status(HttpStatus.CREATED);
-    return Messages.ArtistAdded;
+    return Messages.AlbumAdded;
   }
 
   @Post('track/:id')

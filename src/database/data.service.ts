@@ -27,87 +27,117 @@ export class DataService {
     @InjectRepository(Favorite)
     private favsRepository: Repository<Favorite>,
   ) {
-    this.fillDatabase();
+    if (process.env.LOAD_MOCK_DATA === 'true') {
+      this.fillDatabase();
+    }
   }
 
   public userStorage: User[] = new Array<User>();
   public artistStorage: Artist[] = new Array<Artist>();
   public albumStorage: Album[] = new Array<Album>();
   public trackStorage: Track[] = new Array<Track>();
-  public favStorage: Favorite = {
-    id: uuidv4(),
-    artists: new Array<string>(),
-    albums: new Array<string>(),
-    tracks: new Array<string>(),
-  };
 
   async findFavorites() {
     return this.favsRepository.find();
   }
 
   async removeFavArtist(itemId: string) {
-    const index = this.favStorage.artists.findIndex(
-      (id: string) => id === itemId,
-    );
+    const favs = await this.favsRepository.find();
 
-    if (index > -1) {
-      this.favStorage.artists.splice(index, 1);
+    if (favs.length) {
+      const favorite = favs[0];
+      const index = favorite.artists.findIndex((id) => itemId === id);
+      if (index > -1) {
+        favorite.artists.splice(index, 1);
+        this.favsRepository.save(favorite);
+        return;
+      }
     }
+
+    throw new NotFoundException();
   }
 
   async removeFavTrack(itemId: string) {
-    const index = this.favStorage.tracks.findIndex(
-      (id: string) => id === itemId,
-    );
+    const favs = await this.favsRepository.find();
 
-    if (index > -1) {
-      this.favStorage.tracks.splice(index, 1);
+    if (favs.length) {
+      const favorite = favs[0];
+      const index = favorite.tracks.findIndex((id) => itemId === id);
+      if (index > -1) {
+        favorite.tracks.splice(index, 1);
+        this.favsRepository.save(favorite);
+        return;
+      }
     }
+
+    throw new NotFoundException();
   }
 
   async removeFavAlbum(itemId: string) {
-    const index = this.favStorage.albums.findIndex(
-      (id: string) => id === itemId,
-    );
+    const favs = await this.favsRepository.find();
 
-    if (index > -1) {
-      this.favStorage.albums.splice(index, 1);
+    if (favs.length) {
+      const favorite = favs[0];
+      const index = favorite.albums.findIndex((id) => itemId === id);
+      if (index > -1) {
+        favorite.albums.splice(index, 1);
+        this.favsRepository.save(favorite);
+        return;
+      }
     }
+
+    throw new NotFoundException();
   }
 
   async addFavArtist(id: string) {
-    if (!this.favStorage.artists.includes(id)) {
-      this.favStorage.artists.push(id);
+    await this.findOneArtist(id);
+
+    const favs = await this.favsRepository.find();
+    if (favs.length) {
+      const favorite = favs[0];
+      if (!favorite.artists.includes(id)) {
+        favorite.artists.push(id);
+        this.favsRepository.save(favorite);
+      }
+    } else {
+      const favorite = this.getNewFavorite();
+      favorite.artists.push(id);
+      this.favsRepository.save(favorite);
     }
   }
 
   async addFavAlbum(id: string) {
-    if (!this.favStorage.albums.includes(id)) {
-      this.favStorage.albums.push(id);
+    await this.findOneAlbum(id);
+
+    const favs = await this.favsRepository.find();
+    if (favs.length) {
+      const favorite = favs[0];
+      if (!favorite.albums.includes(id)) {
+        favorite.albums.push(id);
+        this.favsRepository.save(favorite);
+      }
+    } else {
+      const favorite = this.getNewFavorite();
+      favorite.albums.push(id);
+      this.favsRepository.save(favorite);
     }
   }
 
   async addFavTrack(id: string) {
-    const favs = await this.favsRepository.find();
-    // const favId = favs.length > 0 ? favs[0].id : uuidv4();
-    let favorite: Favorite;
+    await this.findOneTrack(id);
 
+    const favs = await this.favsRepository.find();
     if (favs.length) {
-      favorite = favs[0];
+      const favorite = favs[0];
       if (!favorite.tracks.includes(id)) {
         favorite.tracks.push(id);
+        this.favsRepository.save(favorite);
       }
     } else {
-      favorite = {
-        id: uuidv4(),
-        tracks: new Array<string>(),
-        albums: new Array<string>(),
-        artists: new Array<string>(),
-      };
+      const favorite = this.getNewFavorite();
       favorite.tracks.push(id);
+      this.favsRepository.save(favorite);
     }
-
-    this.favsRepository.save(favorite);
   }
 
   async createTrack(track: Track) {
@@ -263,18 +293,14 @@ export class DataService {
   }
 
   private async fillFavs() {
-    favs.albums.forEach((id: string) => this.favStorage.albums.push(id));
-    favs.artists.forEach((id: string) => this.favStorage.artists.push(id));
-    favs.tracks.forEach((id: string) => this.favStorage.tracks.push(id));
-
     const favorites = await this.favsRepository.find();
     const id = favorites.length ? favorites[0].id : uuidv4();
 
     const favorite: Favorite = {
       id,
-      albums: favs.albums,
-      artists: favs.artists,
-      tracks: favs.tracks,
+      albums: [...favs.albums],
+      artists: [...favs.artists],
+      tracks: [...favs.tracks],
     };
 
     await this.favsRepository.save(favorite);
@@ -327,5 +353,14 @@ export class DataService {
 
       this.userStorage.push(newUser);
     });
+  }
+
+  private getNewFavorite(): Favorite {
+    return {
+      id: uuidv4(),
+      artists: new Array<string>(),
+      albums: new Array<string>(),
+      tracks: new Array<string>(),
+    };
   }
 }
