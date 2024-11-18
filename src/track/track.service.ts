@@ -1,9 +1,4 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { DataService } from 'src/database/data.service';
@@ -36,12 +31,7 @@ export class TrackService {
   }
 
   async findOne(id: string) {
-    const track = await this.dataService.findOneTrack(id);
-    if (!track) {
-      throw new NotFoundException();
-    }
-
-    return track;
+    return await this.dataService.findOneTrack(id);
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto) {

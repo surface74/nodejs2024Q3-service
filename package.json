@@ -19,6 +19,7 @@
     "test:refresh": "cross-env TEST_MODE=auth jest --testPathPattern refresh.e2e.spec.ts --noStackTrace --runInBand",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "tdebug": "jest --testMatch \"<rootDir>/*.spec.ts\" --noStackTrace --runInBand -- favorites.e2e.spec.ts",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "docker:srv-build": "docker build . -t surface74/rest-server:latest",
     "docker:db-build": "docker build ./postgres -t surface74/postgres:latest",

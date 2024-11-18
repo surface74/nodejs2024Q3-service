@@ -50,11 +50,11 @@ export class DataService {
       if (index > -1) {
         favorite.artists.splice(index, 1);
         this.favsRepository.save(favorite);
-        return;
+        return favorite;
       }
     }
 
-    throw new NotFoundException();
+    return null;
   }
 
   async removeFavTrack(itemId: string) {
@@ -66,11 +66,11 @@ export class DataService {
       if (index > -1) {
         favorite.tracks.splice(index, 1);
         this.favsRepository.save(favorite);
-        return;
+        return favorite;
       }
     }
 
-    throw new NotFoundException();
+    return null;
   }
 
   async removeFavAlbum(itemId: string) {
@@ -82,11 +82,11 @@ export class DataService {
       if (index > -1) {
         favorite.albums.splice(index, 1);
         this.favsRepository.save(favorite);
-        return;
+        return favorite;
       }
     }
 
-    throw new NotFoundException();
+    return null;
   }
 
   async addFavArtist(id: string) {
@@ -246,38 +246,38 @@ export class DataService {
 
   async removeUser(id: string) {
     const entity = await this.findOneUser(id);
-    this.usersRepository.remove(entity);
+    await this.usersRepository.remove(entity);
   }
 
   async handleRemovalArtist(artistId: string) {
     const albums = await this.albumsRepository.find({ where: { artistId } });
-    albums.forEach(async (album) => {
-      await this.albumsRepository.save({ ...album, artistId: null });
-    });
+    await Promise.all(
+      albums.map((album) =>
+        this.albumsRepository.save({ ...album, artistId: null }),
+      ),
+    );
 
     const tracks = await this.tracksRepository.find({ where: { artistId } });
-    console.log('tracks: ', tracks.length);
-    tracks.forEach(async (track) => {
-      await this.tracksRepository.save({ ...track, artistId: null });
-    });
+    await Promise.all(
+      tracks.map((track) =>
+        this.tracksRepository.save({ ...track, artistId: null }),
+      ),
+    );
 
-    const tracks2 = await this.tracksRepository.find({ where: { artistId } });
-    console.log('tracks: ', tracks2.length);
-
-    try {
-      await this.removeFavArtist(artistId);
-    } catch {}
+    await this.removeFavArtist(artistId);
 
     const artist = await this.findOneArtist(artistId);
-    const toRemoveEntity = await this.artistsRepository.remove(artist);
-    return toRemoveEntity;
+
+    await this.artistsRepository.remove(artist);
   }
 
   async handleRemovalAlbum(albumId: string) {
     const tracks = await this.tracksRepository.find({ where: { albumId } });
-    tracks.forEach(async (track) => {
-      await this.tracksRepository.save({ ...track, albumId: null });
-    });
+    await Promise.all(
+      tracks.map((track) =>
+        this.tracksRepository.save({ ...track, albumId: null }),
+      ),
+    );
 
     await this.removeFavAlbum(albumId);
 

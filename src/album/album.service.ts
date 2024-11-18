@@ -39,12 +39,7 @@ export class AlbumService {
   }
 
   async findOne(id: string) {
-    const album = await this.dataService.findOneAlbum(id);
-    if (!album) {
-      throw new NotFoundException();
-    }
-
-    return album;
+    return await this.dataService.findOneAlbum(id);
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto) {
@@ -53,11 +48,11 @@ export class AlbumService {
       throw new NotFoundException();
     }
 
-    if (updateAlbumDto.name) album.name = updateAlbumDto.name;
-    if (updateAlbumDto.year) album.year = updateAlbumDto.year;
-    if (updateAlbumDto.artistId) album.artistId = updateAlbumDto.artistId;
+    // if (updateAlbumDto.name) album.name = updateAlbumDto.name;
+    // if (updateAlbumDto.year) album.year = updateAlbumDto.year;
+    // if (updateAlbumDto.artistId) album.artistId = updateAlbumDto.artistId;
 
-    return await this.dataService.updateAlbum(album);
+    return await this.dataService.updateAlbum({ ...album, ...updateAlbumDto });
   }
 
   async remove(id: string) {

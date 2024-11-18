@@ -38,9 +38,6 @@ export class UserService {
 
   async findOne(id: string) {
     const user = await this.dataService.findOneUser(id);
-    if (!user) {
-      throw new NotFoundException();
-    }
 
     return new UserResponse(user);
   }
@@ -57,7 +54,8 @@ export class UserService {
 
     user.password = updatePasswordDto.newPassword;
     user.updatedAt = Date.now();
-    user.version += 1;
+    user.createdAt = +user.createdAt;
+    user.version = +user.version + 1;
     await this.dataService.updateUser(user);
 
     return new UserResponse(user);

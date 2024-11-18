@@ -63,15 +63,24 @@ export class FavoritesService {
   }
 
   async removeArtist(itemId: string) {
-    await this.dataService.removeFavArtist(itemId);
+    const entity = await this.dataService.removeFavArtist(itemId);
+    if (entity) {
+      throw new NotFoundException();
+    }
   }
 
   async removeAlbum(itemId: string) {
-    await this.dataService.removeFavAlbum(itemId);
+    const entity = await this.dataService.removeFavAlbum(itemId);
+    if (entity) {
+      throw new NotFoundException();
+    }
   }
 
   async removeTrack(itemId: string) {
-    await this.dataService.removeFavTrack(itemId);
+    const entity = await this.dataService.removeFavTrack(itemId);
+    if (entity) {
+      throw new NotFoundException();
+    }
   }
 
   async findAll() {
