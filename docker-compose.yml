@@ -20,7 +20,7 @@ services:
   #   volumes:
   #     - ./postgres-data:/usr/app/postgres-data/
   postgres:
-    image: postgres:17-alpine3.20
+    image: surface74/postgres:latest
     container_name: postgres_db
     restart: unless-stopped
     ports:

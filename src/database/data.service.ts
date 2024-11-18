@@ -10,7 +10,6 @@ import { Album } from 'src/album/entities/album.entity';
 import { Track } from 'src/track/entities/track.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IDataEntity } from './types/data-entity.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -144,154 +143,115 @@ export class DataService {
   }
 
   async findOneAlbum(id: string) {
-    return this.albumsRepository.findOneBy({ id });
-  }
-
-  async findOneArtist(id: string) {
-    return this.artistsRepository.findOneBy({ id });
-  }
-
-  async findOneTrack(id: string) {
-    return this.tracksRepository.findOneBy({ id });
-  }
-
-  async findOneUser(id: string) {
-    return this.usersRepository.findOneBy({ id });
-  }
-
-  async updateAlbum(updatedAlbum: Album) {
-    const entity = await this.albumsRepository.findOneBy({
-      id: updatedAlbum.id,
-    });
-
+    const entity = await this.albumsRepository.findOneBy({ id });
     if (!entity) {
       throw new NotFoundException();
     }
+    return entity;
+  }
+
+  async findOneArtist(id: string) {
+    const entity = await this.artistsRepository.findOneBy({ id });
+    if (!entity) {
+      throw new NotFoundException();
+    }
+    return entity;
+  }
+
+  async findOneTrack(id: string) {
+    const entity = await this.tracksRepository.findOneBy({ id });
+    if (!entity) {
+      throw new NotFoundException();
+    }
+    return entity;
+  }
+
+  async findOneUser(id: string) {
+    const entity = await this.usersRepository.findOneBy({ id });
+    if (!entity) {
+      throw new NotFoundException();
+    }
+    return entity;
+  }
+
+  async updateAlbum(updatedAlbum: Album) {
+    const entity = await this.findOneAlbum(updatedAlbum.id);
 
     return this.albumsRepository.save({ ...entity, ...updatedAlbum });
   }
 
   async updateArtist(updatedArtist: Artist) {
-    const entity = await this.artistsRepository.findOneBy({
-      id: updatedArtist.id,
-    });
-
-    if (!entity) {
-      throw new NotFoundException();
-    }
+    const entity = await this.findOneArtist(updatedArtist.id);
 
     return this.artistsRepository.save({ ...entity, ...updatedArtist });
   }
 
   async updateTrack(updatedTrack: Track) {
-    const entity = await this.tracksRepository.findOneBy({
-      id: updatedTrack.id,
-    });
-
-    if (!entity) {
-      throw new NotFoundException();
-    }
+    const entity = await this.findOneTrack(updatedTrack.id);
 
     return this.tracksRepository.save({ ...entity, ...updatedTrack });
   }
 
   async updateUser(updatedUser: User) {
-    const entity = await this.usersRepository.findOneBy({ id: updatedUser.id });
-
-    if (!entity) {
-      throw new NotFoundException();
-    }
+    const entity = await this.findOneUser(updatedUser.id);
 
     return this.usersRepository.save({ ...entity, ...updatedUser });
   }
 
-  async removeTrack(id: string) {
-    const entity = await this.tracksRepository.findOneBy({ id });
-
-    if (entity) {
-      this.tracksRepository.remove(entity);
-    }
+  private async removeTrack(id: string) {
+    const entity = await this.findOneTrack(id);
+    this.tracksRepository.remove(entity);
   }
 
-  async removeArtist(id: string) {
-    const index = this.artistStorage.findIndex(
-      (item: IDataEntity) => item.id === id,
-    );
-    if (index > -1) {
-      this.artistStorage.splice(index, 1);
-    }
+  private async removeArtist(id: string) {
+    const entity = await this.findOneArtist(id);
+    this.artistsRepository.remove(entity);
   }
 
-  async removeAlbum(id: string) {
-    const index = this.albumStorage.findIndex(
-      (item: IDataEntity) => item.id === id,
-    );
-    if (index > -1) {
-      this.albumStorage.splice(index, 1);
-    }
+  private async removeAlbum(id: string) {
+    const entity = await this.findOneAlbum(id);
+    this.albumsRepository.remove(entity);
   }
 
   async removeUser(id: string) {
-    const index = this.userStorage.findIndex(
-      (item: IDataEntity) => item.id === id,
-    );
-    if (index === -1) {
-      throw new NotFoundException();
-    }
-
-    this.userStorage.splice(index, 1);
+    const entity = await this.findOneUser(id);
+    this.usersRepository.remove(entity);
   }
 
   async handleRemovalArtist(artistId: string) {
-    const artist: Artist = await this.findOneArtist(artistId);
-    if (!artist) {
-      throw new NotFoundException();
-    }
+    const albums = await this.albumsRepository.find({ where: { artistId } });
+    albums.forEach(async (album) => {
+      await this.albumsRepository.save({ ...album, artistId: null });
+    });
 
-    const album = await this.albumStorage.find(
-      (item: Album) => artistId === item.artistId,
-    );
-    if (album) {
-      album.artistId = null;
-    }
-
-    const track = await this.trackStorage.find(
-      (item: Track) => artistId === item.artistId,
-    );
-    if (track) {
-      track.artistId = null;
-    }
+    const tracks = await this.tracksRepository.find({ where: { artistId } });
+    tracks.forEach(async (track) => {
+      await this.tracksRepository.save({ ...track, artistId: null });
+    });
 
     await this.removeFavArtist(artistId);
-    await this.removeArtist(artistId);
+
+    const artist = await this.findOneArtist(artistId);
+    await this.artistsRepository.remove(artist);
   }
 
   async handleRemovalAlbum(albumId: string) {
-    const album: Album = await this.findOneAlbum(albumId);
-    if (!album) {
-      throw new NotFoundException();
-    }
-
-    const trackIndex = await this.trackStorage.findIndex(
-      (item: Track) => albumId === item.albumId,
-    );
-
-    if (trackIndex > -1) {
-      this.trackStorage[trackIndex].albumId = null;
-    }
+    const tracks = await this.tracksRepository.find({ where: { albumId } });
+    tracks.forEach(async (track) => {
+      await this.tracksRepository.save({ ...track, albumId: null });
+    });
 
     await this.removeFavAlbum(albumId);
-    await this.removeAlbum(albumId);
+
+    const album = await this.findOneAlbum(albumId);
+    await this.albumsRepository.remove(album);
   }
 
   async handleRemovalTrack(trackId: string) {
-    const track = await this.findOneTrack(trackId);
-    if (!track) {
-      throw new NotFoundException();
-    }
-
     await this.removeFavTrack(trackId);
-    await this.removeTrack(trackId);
+
+    const track = await this.findOneTrack(trackId);
+    await this.tracksRepository.remove(track);
   }
 
   private async fillDatabase() {

@@ -46,16 +46,8 @@ export class TrackService {
 
   async update(id: string, updateTrackDto: UpdateTrackDto) {
     const track = await this.dataService.findOneTrack(id);
-    if (!track) {
-      throw new NotFoundException();
-    }
 
-    if (updateTrackDto.name) track.name = updateTrackDto.name;
-    if (updateTrackDto.artistId) track.artistId = updateTrackDto.artistId;
-    if (updateTrackDto.albumId) track.albumId = updateTrackDto.albumId;
-    if (updateTrackDto.duration) track.duration = updateTrackDto.duration;
-
-    return await this.dataService.updateTrack(track);
+    return await this.dataService.updateTrack({ ...track, ...updateTrackDto });
   }
 
   async remove(id: string) {
