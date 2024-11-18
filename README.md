@@ -21,6 +21,8 @@ npm install
 ## Running application
 
 ```
+Start Docker Engine - start Docker Desktop
+start database: `npm start:db`
 npm start
 ```
 

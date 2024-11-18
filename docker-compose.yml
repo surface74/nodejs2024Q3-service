@@ -1,26 +1,19 @@
 services:
-  # client:
-  #   build: ../simple-client
-  #   environment:
-  #     PORT: ${PORT}
-  #   networks:
-  #     - frontend
-  #   depends_on:
-  #     - srv
-
-  # srv:
-  #   build: .
-  #   restart: always
-  #   ports:
-  #     - ${PORT}:${PORT}
-  #   environment:
-  #     - PORT=${PORT}
-  #   networks:
-  #     - frontend
-  #   volumes:
-  #     - ./postgres-data:/usr/app/postgres-data/
+  # server:
+  # image: surface74/rest-server
+  # # build: .
+  # restart: unless-stopped
+  # ports:
+  #   - ${PORT}:${PORT}
+  # environment:
+  #   - PORT=${PORT}
+  #   - LOAD_MOCK_DATA=${LOAD_MOCK_DATA}
+  # networks:
+  #   - frontend
+  # depends_on:
+  #   - postgres
   postgres:
-    image: surface74/postgres:latest
+    image: surface74/postgres
     container_name: postgres_db
     restart: unless-stopped
     ports:
@@ -32,6 +25,8 @@ services:
       PGDATA: '/usr/app/postgres-data/'
     volumes:
       - ./postgres-data:/usr/app/postgres-data/
+    networks:
+      - frontend
 
 volumes:
   postgres-data:
