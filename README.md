@@ -22,8 +22,8 @@ npm install
 
 ```
 Start Docker Engine - start Docker Desktop
-start database: `npm start:db`
-npm start
+start as container: `npm run start:db`
+start extra server: `npm start`
 ```
 
 After starting the app on port (4000 as default) you can open
