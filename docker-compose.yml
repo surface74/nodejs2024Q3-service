@@ -1,12 +1,17 @@
 services:
   server:
     image: surface74/rest-server
-    restart: unless-stopped
     ports:
       - ${PORT}:${PORT}
+    env_file: .env
     environment:
-      - PORT=${PORT}
-      - LOAD_MOCK_DATA=${LOAD_MOCK_DATA}
+      PORT: ${PORT}
+      LOAD_MOCK_DATA: ${LOAD_MOCK_DATA}
+      POSTGRES_DOMAIN: ${POSTGRES_DOMAIN}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - frontend
     depends_on:
@@ -15,8 +20,9 @@ services:
     image: surface74/postgres
     container_name: postgres_container
     restart: unless-stopped
-    # ports:
-    #   - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
+    ports:
+      - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
+    env_file: .env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
