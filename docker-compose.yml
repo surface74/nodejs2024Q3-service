@@ -1,0 +1,35 @@
+services:
+  server:
+    image: surface74/rest-server
+    restart: unless-stopped
+    ports:
+      - ${PORT}:${PORT}
+    environment:
+      - PORT=${PORT}
+      - LOAD_MOCK_DATA=${LOAD_MOCK_DATA}
+    networks:
+      - frontend
+    depends_on:
+      - postgres
+  postgres:
+    image: surface74/postgres
+    container_name: postgres_container
+    restart: unless-stopped
+    # ports:
+    #   - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: '/usr/app/postgres-data/'
+    volumes:
+      - ./postgres-data:/usr/app/postgres-data/
+    networks:
+      - frontend
+
+volumes:
+  postgres-data:
+
+networks:
+  frontend:
+    driver: bridge

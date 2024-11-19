@@ -1,8 +1,11 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import db from 'src/storage/data.service';
-import { validate } from 'uuid';
-import { ErrorMessage } from 'src/storage/types/error-message.enum';
-import { DbResult } from 'src/storage/types/result.types';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+import { DataService } from 'src/database/data.service';
 
 import { FavoritesResponse } from './entities/favorites-response.entity';
 import { Album } from 'src/album/entities/album.entity';
@@ -15,6 +18,7 @@ import { TrackService } from 'src/track/track.service';
 @Injectable()
 export class FavoritesService {
   constructor(
+    private dataService: DataService,
     @Inject(forwardRef(() => ArtistService))
     @Inject(forwardRef(() => AlbumService))
     @Inject(forwardRef(() => TrackService))
@@ -23,167 +27,84 @@ export class FavoritesService {
     private trackService: TrackService,
   ) {}
 
-  async addArtist(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+  async addArtist(id: string) {
+    try {
+      await this.dataService.addFavArtist(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new UnprocessableEntityException();
+      }
+      throw error;
     }
-
-    const itemIndex = await db.artistStorage.findIndex(
-      (item: Artist) => item.id === itemId,
-    );
-
-    if (itemIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
-    }
-
-    const favIndex = await db.favStorage.artists.findIndex(
-      (id: string) => id === itemId,
-    );
-    if (favIndex < 0) {
-      await db.favStorage.artists.push(itemId);
-    }
-
-    return new DbResult({});
   }
 
-  async addAlbum(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+  async addAlbum(id: string) {
+    try {
+      await this.dataService.addFavAlbum(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new UnprocessableEntityException();
+      }
+      throw error;
     }
-
-    const itemIndex = await db.albumStorage.findIndex(
-      (item: Album) => item.id === itemId,
-    );
-
-    if (itemIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
-    }
-
-    const favIndex = await db.favStorage.albums.findIndex(
-      (id: string) => id === itemId,
-    );
-    if (favIndex < 0) {
-      await db.favStorage.albums.push(itemId);
-    }
-
-    return new DbResult({});
   }
 
-  async addTrack(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+  async addTrack(id: string) {
+    try {
+      await this.dataService.addFavTrack(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new UnprocessableEntityException();
+      }
+      throw error;
     }
-
-    const itemIndex = await db.trackStorage.findIndex(
-      (item: Track) => item.id === itemId,
-    );
-
-    if (itemIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
-    }
-
-    const favIndex = await db.favStorage.tracks.findIndex(
-      (id: string) => id === itemId,
-    );
-    if (favIndex < 0) {
-      await db.favStorage.tracks.push(itemId);
-    }
-
-    return new DbResult({});
   }
 
   async removeArtist(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    const entity = await this.dataService.removeFavArtist(itemId);
+    if (!entity) {
+      throw new NotFoundException();
     }
-
-    const favIndex = await db.favStorage.artists.findIndex(
-      (id: string) => id === itemId,
-    );
-
-    if (favIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
-    }
-
-    await db.favStorage.artists.splice(favIndex, 1);
-
-    return new DbResult({});
   }
 
   async removeAlbum(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    const entity = await this.dataService.removeFavAlbum(itemId);
+    if (!entity) {
+      throw new NotFoundException();
     }
-
-    const favIndex = await db.favStorage.albums.findIndex(
-      (id: string) => id === itemId,
-    );
-
-    if (favIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
-    }
-
-    await db.favStorage.albums.splice(favIndex, 1);
-
-    return new DbResult({});
   }
 
   async removeTrack(itemId: string) {
-    if (!validate(itemId)) {
-      return new DbResult({ errorText: ErrorMessage.WRONG_UUID });
+    const entity = await this.dataService.removeFavTrack(itemId);
+    if (!entity) {
+      throw new NotFoundException();
     }
-
-    const favIndex = await db.favStorage.tracks.findIndex(
-      (id: string) => id === itemId,
-    );
-
-    if (favIndex < 0) {
-      return new DbResult({
-        errorText: ErrorMessage.RECORD_NOT_EXISTS,
-      });
-    }
-
-    await db.favStorage.tracks.splice(favIndex, 1);
-
-    return new DbResult({});
   }
 
   async findAll() {
+    const favorites = await this.dataService.findFavorites();
+
     const favs: FavoritesResponse = {
       artists: new Array<Artist>(),
       albums: new Array<Album>(),
       tracks: new Array<Track>(),
     };
 
-    for (const id of db.favStorage.artists) {
-      const result = await this.artistService.findOne(id);
-      if (!result.errorText) {
-        favs.artists.push(result.data as Artist);
-      }
-    }
+    if (!favorites.length) return favs;
 
-    for (const id of db.favStorage.albums) {
-      const result = await this.albumService.findOne(id);
-      if (!result.errorText) {
-        favs.albums.push(result.data as Album);
-      }
-    }
+    const favorite = favorites[0];
 
-    for (const id of db.favStorage.tracks) {
-      const result = await this.trackService.findOne(id);
-      if (!result.errorText) {
-        favs.tracks.push(result.data as Track);
-      }
+    for (const id of favorite.artists) {
+      favs.artists.push(await this.artistService.findOne(id));
+    }
+    for (const id of favorite.albums) {
+      favs.albums.push(await this.albumService.findOne(id));
+    }
+    for (const id of favorite.tracks) {
+      const entity = await this.trackService.findOne(id);
+      entity.duration = +entity.duration;
+
+      favs.tracks.push(entity);
     }
 
     return favs;

@@ -21,11 +21,14 @@ npm install
 ## Running application
 
 ```
-npm start
+Start Docker Engine - start Docker Desktop
+start as container: `npm run start:db`
+start extra server: `npm start`
 ```
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
+To get API-scheme, you can go to http://localhost:4000/doc-yaml, or http://localhost:4000/doc-json
 Port to start can be set into `.env`
 
 ## Testing

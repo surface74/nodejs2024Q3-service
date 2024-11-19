@@ -7,15 +7,33 @@ import { TrackModule } from './track/track.module';
 import { AlbumModule } from './album/album.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { ConfigModule } from '@nestjs/config';
+import { DataModule } from './database/data.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './user/entities/user.entity';
+import { Album } from './album/entities/album.entity';
+import { Artist } from './artist/entities/artist.entity';
+import { Track } from './track/entities/track.entity';
+import { Favorite } from './favorites/entities/favorite.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    DataModule,
     UserModule,
     ArtistModule,
     TrackModule,
     AlbumModule,
     FavoritesModule,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'postgres_container',
+      port: +(process.env.POSTGRES_PORT || '5432'),
+      username: process.env.POSTGRES_USER || 'postgres',
+      password: process.env.POSTGRES_PASSWORD || 'postgres',
+      database: process.env.POSTGRES_DB || 'postgres',
+      entities: [User, Album, Artist, Track, Favorite],
+      synchronize: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

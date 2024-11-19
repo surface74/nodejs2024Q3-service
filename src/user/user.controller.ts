@@ -8,14 +8,15 @@ import {
   Res,
   HttpStatus,
   Put,
+  ParseUUIDPipe,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { Response } from 'express';
 
-import { DbResult } from 'src/storage/types/result.types';
-import { ErrorMessage } from 'src/storage/types/error-message.enum';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -25,98 +26,53 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserResponce } from './entities/user-responce.entity';
+import { UserResponse } from './entities/user-responce.entity';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post()
-  @ApiCreatedResponse({ description: 'Created', type: UserResponce })
-  @ApiBadRequestResponse({
-    description: 'Request body does not contain required fields',
-  })
+  @ApiCreatedResponse({ description: 'Created', type: UserResponse })
+  @ApiBadRequestResponse({ description: 'Not contains required fields' })
   async create(
     @Body() createUserDto: CreateUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.userService.create(createUserDto);
-    if (result.errorText) {
-      res.status(HttpStatus.BAD_REQUEST);
-      return result.errorText;
-    }
-
     res.status(HttpStatus.CREATED);
-    return result.data;
+
+    return await this.userService.create(createUserDto);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  @ApiOkResponse({ description: 'OK', type: [UserResponce] })
+  @ApiOkResponse({ description: 'OK', type: [UserResponse] })
   async findAll() {
-    return (await this.userService.findAll()).data;
+    return await this.userService.findAll();
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
-  @ApiOkResponse({ description: 'OK', type: UserResponce })
+  @ApiOkResponse({ description: 'OK', type: UserResponse })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async findOne(
-    @Param('id') id: string,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const result: DbResult = await this.userService.findOne(id);
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.NOT_FOUND);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
-
-    return result.data;
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return await this.userService.findOne(id);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Put(':id')
-  @ApiOkResponse({ description: 'OK', type: UserResponce })
+  @ApiOkResponse({ description: 'OK', type: UserResponse })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiForbiddenResponse({ description: 'Invalid password' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async update(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-    @Res({ passthrough: true }) res: Response,
   ) {
-    const result: DbResult = await this.userService.updatePassword(
-      id,
-      updatePasswordDto,
-    );
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.NOT_FOUND);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        case ErrorMessage.BAD_PASSWORD:
-          res.status(HttpStatus.FORBIDDEN);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
-
-    return result.data;
+    return await this.userService.updatePassword(id, updatePasswordDto);
   }
 
   @Delete(':id')
@@ -124,25 +80,10 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async remove(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.userService.remove(id);
-
-    if (result.errorText) {
-      switch (result.errorText) {
-        case ErrorMessage.RECORD_NOT_EXISTS:
-          res.status(HttpStatus.NOT_FOUND);
-          break;
-        case ErrorMessage.WRONG_UUID:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-        default:
-          res.status(HttpStatus.BAD_REQUEST);
-          break;
-      }
-      return result.errorText;
-    }
+    await this.userService.remove(id);
 
     res.status(HttpStatus.NO_CONTENT);
     return '';
