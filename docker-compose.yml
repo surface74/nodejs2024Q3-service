@@ -40,6 +40,24 @@ services:
         limits:
           cpus: '2'
           memory: 2G
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'pg_isready',
+          '-U',
+          '${POSTGRES_USER}',
+          '-d',
+          '${POSTGRES_DB}',
+          '-h',
+          'database',
+          '-p',
+          '${POSTGRES_PORT}',
+        ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
     volumes:
       - ./postgres-data:/usr/app/postgres-data/
     networks:
