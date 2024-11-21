@@ -14,6 +14,8 @@ import { Album } from './album/entities/album.entity';
 import { Artist } from './artist/entities/artist.entity';
 import { Track } from './track/entities/track.entity';
 import { Favorite } from './favorites/entities/favorite.entity';
+import { APP_FILTER } from '@nestjs/core';
+import { CustomExceptionFilter } from './common/custom-exception-filter';
 
 @Module({
   imports: [
@@ -39,6 +41,12 @@ import { Favorite } from './favorites/entities/favorite.entity';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: CustomExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}
