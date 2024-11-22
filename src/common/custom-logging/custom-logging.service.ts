@@ -1,6 +1,7 @@
-import { Injectable, ConsoleLogger, Scope } from '@nestjs/common';
+import { Injectable, ConsoleLogger } from '@nestjs/common';
+import { LoggingLevel } from './logging-level.enum';
 
-@Injectable({ scope: Scope.TRANSIENT })
+@Injectable()
 export class CustomLogging extends ConsoleLogger {
   // error(message: any, stack?: string, context?: string) {
   //   // add your tailored logic here
@@ -9,7 +10,17 @@ export class CustomLogging extends ConsoleLogger {
   /**
    * Write a 'log' level log.
    */
-  // log(message: any, ...optionalParams: any[]) {}
+  log(message: any, ...optionalParams: any[]) {
+    super.log(message);
+
+    if (LoggingLevel.log <= +process.env.LOG_LEVEL) {
+      console.log(
+        'optionalParams: ',
+        Object.values(LoggingLevel).filter((item) => typeof item === 'string'),
+      );
+      // console.log('optionalParams: ', LoggingLevel[LoggingLevel['log']]);
+    }
+  }
 
   /**
    * Write a 'fatal' level log.

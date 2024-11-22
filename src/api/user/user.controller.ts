@@ -11,11 +11,13 @@ import {
   ParseUUIDPipe,
   ClassSerializerInterceptor,
   UseInterceptors,
+  Req,
+  Logger,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 import {
   ApiBadRequestResponse,
@@ -31,6 +33,8 @@ import { UserResponse } from './entities/user-responce.entity';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
+
   constructor(private readonly userService: UserService) {}
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -49,7 +53,9 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOkResponse({ description: 'OK', type: [UserResponse] })
-  async findAll() {
+  async findAll(@Req() req: Request) {
+    // this.logger.log(req.method, req.url, req.query, req.body);
+
     return await this.userService.findAll();
   }
 

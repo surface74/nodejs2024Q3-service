@@ -4,10 +4,11 @@ services:
     image: surface74/rest-server
     ports:
       - ${PORT}:${PORT}
-    env_file: .env
+    env_file: .env.docker
     environment:
       PORT: ${PORT}
       LOAD_MOCK_DATA: ${LOAD_MOCK_DATA}
+      LOG_LEVEL: 3
       POSTGRES_DOMAIN: ${POSTGRES_DOMAIN}
       POSTGRES_PORT: ${POSTGRES_PORT}
       POSTGRES_DB: ${POSTGRES_DB}
@@ -27,7 +28,7 @@ services:
       - '--log_directory=/usr/app/postgres-data/pg_log'
       - '--log_rotation_age=60'
     restart: unless-stopped
-    env_file: .env
+    env_file: .env.docker
     ports:
       - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
     environment:
