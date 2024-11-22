@@ -8,12 +8,12 @@ import {
 import { DataService } from 'src/database/data.service';
 
 import { FavoritesResponse } from './entities/favorites-response.entity';
-import { Album } from 'src/album/entities/album.entity';
-import { Track } from 'src/track/entities/track.entity';
-import { Artist } from 'src/artist/entities/artist.entity';
-import { ArtistService } from 'src/artist/artist.service';
-import { AlbumService } from 'src/album/album.service';
-import { TrackService } from 'src/track/track.service';
+import { Album } from 'src/api/album/entities/album.entity';
+import { Track } from 'src/api/track/entities/track.entity';
+import { Artist } from 'src/api/artist/entities/artist.entity';
+import { ArtistService } from 'src/api/artist/artist.service';
+import { AlbumService } from 'src/api/album/album.service';
+import { TrackService } from 'src/api/track/track.service';
 
 @Injectable()
 export class FavoritesService {

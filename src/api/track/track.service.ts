@@ -4,7 +4,7 @@ import { UpdateTrackDto } from './dto/update-track.dto';
 import { DataService } from 'src/database/data.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Track } from './entities/track.entity';
-import { FavoritesService } from 'src/favorites/favorites.service';
+import { FavoritesService } from 'src/api/favorites/favorites.service';
 
 @Injectable()
 export class TrackService {
