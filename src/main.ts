@@ -6,9 +6,15 @@ import {
   SwaggerDocumentOptions,
   SwaggerModule,
 } from '@nestjs/swagger';
+import { CustomLogging } from './common/custom-logging/custom-logging.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    logger: ['log', 'fatal', 'error', 'warn', 'debug', 'verbose'],
+  });
+
+  app.useLogger(new CustomLogging());
 
   const config = new DocumentBuilder()
     .setTitle('Home Library Service')

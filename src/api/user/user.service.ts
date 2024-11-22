@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,6 +14,8 @@ import { UserResponse } from './entities/user-responce.entity';
 @Injectable()
 export class UserService {
   constructor(private dataService: DataService) {}
+
+  private readonly logger = new Logger(UserService.name);
 
   async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
@@ -29,6 +32,8 @@ export class UserService {
   }
 
   async findAll() {
+    this.logger.log('Hi there!');
+
     const users = (await this.dataService.findAllUsers()).map((user: User) => {
       return new UserResponse(user);
     });
