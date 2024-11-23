@@ -1,25 +1,30 @@
 import { Injectable, ConsoleLogger } from '@nestjs/common';
-import { LoggingLevel } from './logging-level.enum';
+import { LoggingLevel } from './types/logging-level.enum';
+import { Request } from 'express';
+import { Register } from './register';
 
 @Injectable()
 export class CustomLogging extends ConsoleLogger {
-  // error(message: any, stack?: string, context?: string) {
-  //   // add your tailored logic here
-  //   super.error(...arguments);
-  // }
-  /**
-   * Write a 'log' level log.
-   */
+  private register = new Register(process.env.LOG_PATH, +process.env.LOG_SIZE);
+
   log(message: any, ...optionalParams: any[]) {
-    super.log(message);
+    super.log(message, optionalParams.join(' '));
 
     if (LoggingLevel.log <= +process.env.LOG_LEVEL) {
-      console.log(
-        'optionalParams: ',
-        Object.values(LoggingLevel).filter((item) => typeof item === 'string'),
-      );
-      // console.log('optionalParams: ', LoggingLevel[LoggingLevel['log']]);
+      this.register.toFile([].concat(message, ...optionalParams).join(' '));
     }
+  }
+
+  logRequest(req: Request) {
+    const { method, url, query, body } = req;
+    this.log('REQUEST', [
+      method,
+      url,
+      Object.entries(query)
+        .map((item) => item.join('='))
+        .join('&'),
+      JSON.stringify(body),
+    ]);
   }
 
   /**
@@ -46,8 +51,4 @@ export class CustomLogging extends ConsoleLogger {
    * Write a 'verbose' level log.
    */
   // verbose?(message: any, ...optionalParams: any[]) {}
-
-  customLog() {
-    this.log('Please feed the cat!');
-  }
 }

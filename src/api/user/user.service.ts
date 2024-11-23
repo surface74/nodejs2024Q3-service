@@ -32,8 +32,6 @@ export class UserService {
   }
 
   async findAll() {
-    this.logger.log('Hi there!');
-
     const users = (await this.dataService.findAllUsers()).map((user: User) => {
       return new UserResponse(user);
     });

@@ -14,7 +14,7 @@ async function bootstrap() {
     logger: ['log', 'fatal', 'error', 'warn', 'debug', 'verbose'],
   });
 
-  app.useLogger(new CustomLogging());
+  app.useLogger(new CustomLogging(process.env.LOG_PATH));
 
   const config = new DocumentBuilder()
     .setTitle('Home Library Service')

@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from '../api/user/user.module';
-import { ArtistModule } from '../api/artist/artist.module';
-import { TrackModule } from '../api/track/track.module';
-import { AlbumModule } from '../api/album/album.module';
-import { FavoritesModule } from '../api/favorites/favorites.module';
+import { UserModule } from 'src/api/user/user.module';
+import { ArtistModule } from 'src/api/artist/artist.module';
+import { TrackModule } from 'src/api/track/track.module';
+import { AlbumModule } from 'src/api/album/album.module';
+import { FavoritesModule } from 'src/api/favorites/favorites.module';
 import { ConfigModule } from '@nestjs/config';
-import { DataModule } from '../database/data.module';
+import { DataModule } from 'src/database/data.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../api/user/entities/user.entity';
-import { Album } from '../api/album/entities/album.entity';
-import { Artist } from '../api/artist/entities/artist.entity';
-import { Track } from '../api/track/entities/track.entity';
-import { Favorite } from '../api/favorites/entities/favorite.entity';
+import { User } from 'src/api/user/entities/user.entity';
+import { Album } from 'src/api/album/entities/album.entity';
+import { Artist } from 'src/api/artist/entities/artist.entity';
+import { Track } from 'src/api/track/entities/track.entity';
+import { Favorite } from 'src/api/favorites/entities/favorite.entity';
 import { APP_FILTER } from '@nestjs/core';
-import { CustomExceptionFilter } from '../common/custom-exception-filter';
+import { CustomExceptionFilter } from 'src/common/custom-exception-filter';
 
 @Module({
   imports: [

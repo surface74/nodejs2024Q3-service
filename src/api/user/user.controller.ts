@@ -12,7 +12,6 @@ import {
   ClassSerializerInterceptor,
   UseInterceptors,
   Req,
-  Logger,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -29,11 +28,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserResponse } from './entities/user-responce.entity';
+import { CustomLogging } from 'src/common/custom-logging/custom-logging.service';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  private readonly logger = new Logger(UserController.name);
+  private readonly customLogger = new CustomLogging(UserController.name);
 
   constructor(private readonly userService: UserService) {}
 
@@ -53,10 +53,11 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOkResponse({ description: 'OK', type: [UserResponse] })
-  async findAll(@Req() req: Request) {
-    // this.logger.log(req.method, req.url, req.query, req.body);
-
-    return await this.userService.findAll();
+  async findAll(@Req() req: Request, @Res() res: Response) {
+    this.customLogger.logRequest(req);
+    const result = await this.userService.findAll();
+    console.log(res.statusCode);
+    return result;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
