@@ -5,18 +5,21 @@ import { join, normalize, parse } from 'node:path';
 
 export class Register {
   readonly INIT_LOG_FILE_NUMBER = 1;
-  readonly _path: string;
-  readonly _maxSize: number;
+  readonly _logPath = process.env.LOG_PATH;
+  readonly _logErrorPath = process.env.LOG_ERROR_PATH;
+  readonly _maxSize = +process.env.LOG_SIZE;
 
-  constructor(path: string, maxSize: number) {
-    this._path = path;
-    this._maxSize = maxSize;
+  async toLogFile(...messages: string[]) {
+    await this.write([new Date().toISOString(), ...messages], this._logPath);
   }
 
-  async toFile(...messages: string[]) {
-    try {
-      const logPath = normalize(this._path);
+  async toLogErrorFile(...messages: string[]) {
+    await this.write(messages, this._logErrorPath);
+  }
 
+  private async write(messages: string[], folder: string) {
+    const logPath = normalize(folder);
+    try {
       mkdirSync(logPath, { recursive: true });
 
       const files = [];

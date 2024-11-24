@@ -1,30 +1,36 @@
 import { Injectable, ConsoleLogger } from '@nestjs/common';
 import { LoggingLevel } from './types/logging-level.enum';
-import { Request } from 'express';
-import { Register } from './register';
+import { Request, Response } from 'express';
+import { Register } from '../register/register';
 
 @Injectable()
-export class CustomLogging extends ConsoleLogger {
-  private register = new Register(process.env.LOG_PATH, +process.env.LOG_SIZE);
+export class CustomLogger extends ConsoleLogger {
+  private register = new Register();
 
   log(message: any, ...optionalParams: any[]) {
     super.log(message, optionalParams.join(' '));
 
     if (LoggingLevel.log <= +process.env.LOG_LEVEL) {
-      this.register.toFile([].concat(message, ...optionalParams).join(' '));
+      this.register.toLogFile([...optionalParams, message].join(' '));
     }
   }
 
   logRequest(req: Request) {
     const { method, url, query, body } = req;
-    this.log('REQUEST', [
+    const message = [
       method,
       url,
       Object.entries(query)
         .map((item) => item.join('='))
         .join('&'),
       JSON.stringify(body),
-    ]);
+    ].join(' ');
+
+    this.log(message, this.context);
+  }
+
+  logResponse(res: Response) {
+    this.log(res.statusCode, this.context);
   }
 
   /**

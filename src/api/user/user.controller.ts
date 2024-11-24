@@ -28,12 +28,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserResponse } from './entities/user-responce.entity';
-import { CustomLogging } from 'src/common/custom-logging/custom-logging.service';
+import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  private readonly customLogger = new CustomLogging(UserController.name);
+  private readonly customLogger = new CustomLogger(UserController.name);
 
   constructor(private readonly userService: UserService) {}
 
@@ -43,20 +43,33 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Not contains required fields' })
   async create(
     @Body() createUserDto: CreateUserDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
     res.status(HttpStatus.CREATED);
 
-    return await this.userService.create(createUserDto);
+    this.customLogger.logRequest(req);
+
+    const result = await this.userService.create(createUserDto);
+
+    this.customLogger.logResponse(res);
+
+    return result;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOkResponse({ description: 'OK', type: [UserResponse] })
-  async findAll(@Req() req: Request, @Res() res: Response) {
+  async findAll(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     this.customLogger.logRequest(req);
+
     const result = await this.userService.findAll();
-    console.log(res.statusCode);
+
+    this.customLogger.logResponse(res);
+
     return result;
   }
 
@@ -65,8 +78,18 @@ export class UserController {
   @ApiOkResponse({ description: 'OK', type: UserResponse })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    return await this.userService.findOne(id);
+  async findOne(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    this.customLogger.logRequest(req);
+
+    const result = await this.userService.findOne(id);
+
+    this.customLogger.logResponse(res);
+
+    return result;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -76,10 +99,18 @@ export class UserController {
   @ApiForbiddenResponse({ description: 'Invalid password' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async update(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
-    return await this.userService.updatePassword(id, updatePasswordDto);
+    this.customLogger.logRequest(req);
+
+    const result = await this.userService.updatePassword(id, updatePasswordDto);
+
+    this.customLogger.logResponse(res);
+
+    return result;
   }
 
   @Delete(':id')
@@ -87,12 +118,17 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async remove(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    await this.userService.remove(id);
+    this.customLogger.logRequest(req);
 
     res.status(HttpStatus.NO_CONTENT);
+    await this.userService.remove(id);
+
+    this.customLogger.logResponse(res);
+
     return '';
   }
 }

@@ -27,7 +27,6 @@ export class DataService {
     @InjectRepository(Favorite)
     private favsRepository: Repository<Favorite>,
   ) {
-    console.log(process.env.LOG_PORT);
     if (process.env.LOAD_MOCK_DATA === 'true') {
       this.fillDatabase();
     }
