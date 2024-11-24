@@ -15,7 +15,8 @@ import { Artist } from 'src/api/artist/entities/artist.entity';
 import { Track } from 'src/api/track/entities/track.entity';
 import { Favorite } from 'src/api/favorites/entities/favorite.entity';
 import { APP_FILTER } from '@nestjs/core';
-import { CustomExceptionFilter } from 'src/common/custom-exception-filter';
+import { CustomExceptionFilter } from 'src/common/custom-exception-filter/custom-exception-filter';
+import { CustomLoggerModule } from 'src/common/custom-logger/custom-logger.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CustomExceptionFilter } from 'src/common/custom-exception-filter';
       envFilePath: '.env.local',
       isGlobal: true,
     }),
+    CustomLoggerModule,
     DataModule,
     UserModule,
     ArtistModule,

@@ -12,6 +12,7 @@ import {
   ClassSerializerInterceptor,
   UseInterceptors,
   Req,
+  Inject,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -33,9 +34,13 @@ import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  private readonly customLogger = new CustomLogger(UserController.name);
-
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    @Inject(CustomLogger)
+    private customLogger: CustomLogger,
+  ) {
+    this.customLogger.setContext(UserController.name);
+  }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post()

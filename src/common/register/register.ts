@@ -7,14 +7,17 @@ export class Register {
   readonly INIT_LOG_FILE_NUMBER = 1;
   readonly _logPath = process.env.LOG_PATH;
   readonly _logErrorPath = process.env.LOG_ERROR_PATH;
-  readonly _maxSize = +process.env.LOG_SIZE;
+  readonly _maxSize = +process.env.LOG_FILE_SIZE;
 
   async toLogFile(...messages: string[]) {
     await this.write([new Date().toISOString(), ...messages], this._logPath);
   }
 
   async toLogErrorFile(...messages: string[]) {
-    await this.write(messages, this._logErrorPath);
+    await this.write(
+      [new Date().toISOString(), ...messages],
+      this._logErrorPath,
+    );
   }
 
   private async write(messages: string[], folder: string) {
@@ -36,13 +39,15 @@ export class Register {
         files.sort((item1, item2) => +parse(item2).name - +parse(item1).name);
         const fileSize = (await stat(join(logPath, files[0]))).size;
         fileNumber = +parse(files[0]).name;
+
         if (fileSize >= 1000 * this._maxSize) {
           fileNumber++;
         }
-        const logFile = join(logPath, `${fileNumber}.log`);
-
-        await writeFile(logFile, messages.join(' ') + EOL, { flag: 'a' });
       }
+
+      const logFile = join(logPath, `${fileNumber}.log`);
+
+      await writeFile(logFile, messages.join(' ') + EOL, { flag: 'a' });
     } catch (error) {
       console.log(error.message);
     }

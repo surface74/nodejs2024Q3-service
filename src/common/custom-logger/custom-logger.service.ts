@@ -2,6 +2,7 @@ import { Injectable, ConsoleLogger } from '@nestjs/common';
 import { LoggingLevel } from './types/logging-level.enum';
 import { Request, Response } from 'express';
 import { Register } from '../register/register';
+import { ICustomHttpError } from '../custom-exception-filter/interfaces/custom-http-error.interface';
 
 @Injectable()
 export class CustomLogger extends ConsoleLogger {
@@ -41,7 +42,18 @@ export class CustomLogger extends ConsoleLogger {
   /**
    * Write an 'error' level log.
    */
-  // error(message: any, ...optionalParams: any[]) {}
+  error(message: any, ...optionalParams: any[]) {
+    super.error(message, optionalParams);
+
+    if (LoggingLevel.error <= +process.env.LOG_LEVEL) {
+      this.register.toLogFile([...optionalParams, message].join(' '));
+      this.register.toLogErrorFile([...optionalParams, message].join(' '));
+    }
+  }
+
+  logHttpError(httpError: ICustomHttpError) {
+    this.error(JSON.stringify(httpError), this.context);
+  }
 
   /**
    * Write a 'warn' level log.
