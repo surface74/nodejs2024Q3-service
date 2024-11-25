@@ -5,9 +5,11 @@ import { FavoritesModule } from 'src/api/favorites/favorites.module';
 import { AlbumModule } from 'src/api/album/album.module';
 import { TrackModule } from 'src/api/track/track.module';
 import { DataModule } from 'src/database/data.module';
+import { CustomLoggerModule } from 'src/common/custom-logger/custom-logger.module';
 
 @Module({
   imports: [
+    CustomLoggerModule,
     DataModule,
     forwardRef(() => AlbumModule),
     forwardRef(() => TrackModule),

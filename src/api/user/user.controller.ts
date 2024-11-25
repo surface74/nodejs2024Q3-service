@@ -47,9 +47,9 @@ export class UserController {
   @ApiCreatedResponse({ description: 'Created', type: UserResponse })
   @ApiBadRequestResponse({ description: 'Not contains required fields' })
   async create(
-    @Body() createUserDto: CreateUserDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
+    @Body() createUserDto: CreateUserDto,
   ) {
     res.status(HttpStatus.CREATED);
 
@@ -129,8 +129,8 @@ export class UserController {
   ) {
     this.customLogger.logRequest(req);
 
-    res.status(HttpStatus.NO_CONTENT);
     await this.userService.remove(id);
+    res.status(HttpStatus.NO_CONTENT);
 
     this.customLogger.logResponse(res);
 
