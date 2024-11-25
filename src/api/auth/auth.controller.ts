@@ -21,7 +21,7 @@ import {
 import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 import { Request, Response } from 'express';
 import { AuthMessages } from './enums/auth-messages.enum';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { RefreshAuthDto } from './dto/refresh-auth.dto';
 import { AuthTokensDto } from './dto/auth-tokens.dto';
 import { Public } from './public.decorator';
 
@@ -85,20 +85,24 @@ export class AuthController {
 
   @Public()
   @Post('refresh')
-  @ApiOkResponse({ description: AuthMessages.RefreshSuccessful })
+  @ApiOkResponse({
+    description: AuthMessages.RefreshSuccessful,
+    type: AuthTokensDto,
+  })
   @ApiUnauthorizedResponse({ description: AuthMessages.TokenExpired })
   @ApiBadRequestResponse({ description: AuthMessages.NoTokenPassed })
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    @Body() token: UpdateAuthDto,
+    @Body() token: RefreshAuthDto,
   ) {
     this.customLogger.logRequest(req);
 
-    await this.authService.refresh(token);
+    const tokens: AuthTokensDto = await this.authService.refresh(token);
+    res.status(HttpStatus.OK);
 
     this.customLogger.logResponse(res);
 
-    return AuthMessages.RefreshSuccessful;
+    return tokens;
   }
 }

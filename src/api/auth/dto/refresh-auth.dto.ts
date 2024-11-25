@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Entity } from 'typeorm';
 
 @Entity()
-export class UpdateAuthDto {
+export class RefreshAuthDto {
   @ApiProperty({
-    description: 'Access token',
+    description: 'Refresh token',
   })
-  token: string;
+  refreshToken: string;
 }
