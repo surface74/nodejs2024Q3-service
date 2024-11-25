@@ -9,7 +9,6 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import { DataService } from 'src/database/data.service';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
-import { UserResponse } from './entities/user-responce.entity';
 import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 
 @Injectable()
@@ -33,12 +32,12 @@ export class UserService {
       updatedAt: Date.now(),
     };
 
-    return new UserResponse(await this.dataService.createUser(user));
+    return new User(await this.dataService.createUser(user));
   }
 
   async findAll() {
     const users = (await this.dataService.findAllUsers()).map((user: User) => {
-      return new UserResponse(user);
+      return new User(user);
     });
 
     return users;
@@ -47,7 +46,7 @@ export class UserService {
   async findOne(id: string) {
     const user = await this.dataService.findOneUser(id);
 
-    return new UserResponse(user);
+    return new User(user);
   }
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
@@ -66,7 +65,7 @@ export class UserService {
     user.version = +user.version + 1;
     await this.dataService.updateUser(user);
 
-    return new UserResponse(user);
+    return new User(user);
   }
 
   async remove(id: string) {

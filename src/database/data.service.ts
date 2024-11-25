@@ -199,6 +199,14 @@ export class DataService {
     return entity;
   }
 
+  async findUserByLogin(login: string) {
+    const entity = await this.usersRepository.findOneBy({ login });
+    if (!entity) {
+      throw new NotFoundException();
+    }
+    return entity;
+  }
+
   async updateAlbum(updatedAlbum: Album) {
     const entity = await this.findOneAlbum(updatedAlbum.id);
 

@@ -1,9 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IUser } from './user.interface';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Exclude } from 'class-transformer';
+import { IDataEntity } from 'src/database/types/data-entity.interface';
 
 @Entity()
-export class User implements IUser {
+export class User implements IDataEntity {
+  constructor(user: Partial<User>) {
+    Object.assign(this, user);
+  }
+
   @PrimaryGeneratedColumn('uuid')
   @ApiProperty({
     description: 'User ID (UUID v4)',
@@ -17,6 +22,7 @@ export class User implements IUser {
 
   @Column('text')
   @ApiProperty({ description: 'Password' })
+  @Exclude()
   password: string;
 
   @Column('decimal')

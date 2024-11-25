@@ -27,9 +27,11 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
+  OmitType,
 } from '@nestjs/swagger';
-import { UserResponse } from './entities/user-responce.entity';
+
 import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
+import { User } from './entities/user.entity';
 
 @ApiTags('User')
 @Controller('user')
@@ -44,18 +46,20 @@ export class UserController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post()
-  @ApiCreatedResponse({ description: 'Created', type: UserResponse })
+  @ApiCreatedResponse({
+    description: 'Created',
+    type: OmitType(User, ['password']),
+  })
   @ApiBadRequestResponse({ description: 'Not contains required fields' })
   async create(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() createUserDto: CreateUserDto,
   ) {
-    res.status(HttpStatus.CREATED);
-
     this.customLogger.logRequest(req);
 
     const result = await this.userService.create(createUserDto);
+    res.status(HttpStatus.CREATED);
 
     this.customLogger.logResponse(res);
 
@@ -64,7 +68,7 @@ export class UserController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  @ApiOkResponse({ description: 'OK', type: [UserResponse] })
+  @ApiOkResponse({ description: 'OK', type: [OmitType(User, ['password'])] })
   async findAll(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -80,7 +84,7 @@ export class UserController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
-  @ApiOkResponse({ description: 'OK', type: UserResponse })
+  @ApiOkResponse({ description: 'OK', type: OmitType(User, ['password']) })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
@@ -99,7 +103,7 @@ export class UserController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Put(':id')
-  @ApiOkResponse({ description: 'OK', type: UserResponse })
+  @ApiOkResponse({ description: 'OK', type: OmitType(User, ['password']) })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiForbiddenResponse({ description: 'Invalid password' })
   @ApiNotFoundResponse({ description: 'Not found' })

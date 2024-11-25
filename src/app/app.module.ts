@@ -17,6 +17,7 @@ import { Favorite } from 'src/api/favorites/entities/favorite.entity';
 import { APP_FILTER } from '@nestjs/core';
 import { CustomExceptionFilter } from 'src/common/custom-exception-filter/custom-exception-filter';
 import { CustomLoggerModule } from 'src/common/custom-logger/custom-logger.module';
+import { AuthModule } from 'src/api/auth/auth.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CustomLoggerModule } from 'src/common/custom-logger/custom-logger.modul
     TrackModule,
     AlbumModule,
     FavoritesModule,
+    AuthModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_DOMAIN || 'localhost',
@@ -38,7 +40,7 @@ import { CustomLoggerModule } from 'src/common/custom-logger/custom-logger.modul
       username: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'postgres',
       database: process.env.POSTGRES_DB || 'postgres',
-      entities: [User, Album, Artist, Track, Favorite],
+      entities: [User, Album, Artist, Track, Favorite, AuthModule],
       synchronize: true,
     }),
   ],
