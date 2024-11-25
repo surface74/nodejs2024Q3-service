@@ -9,8 +9,8 @@ import { UpdateAlbumDto } from './dto/update-album.dto';
 import { DataService } from 'src/database/data.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Album } from './entities/album.entity';
-import { FavoritesService } from 'src/favorites/favorites.service';
-import { TrackService } from 'src/track/track.service';
+import { FavoritesService } from 'src/api/favorites/favorites.service';
+import { TrackService } from 'src/api/track/track.service';
 
 @Injectable()
 export class AlbumService {

@@ -1,12 +1,19 @@
+name: nodejs2024q3
 services:
   server:
     image: surface74/rest-server
-    restart: unless-stopped
     ports:
       - ${PORT}:${PORT}
+    env_file: .env
     environment:
-      - PORT=${PORT}
-      - LOAD_MOCK_DATA=${LOAD_MOCK_DATA}
+      PORT: ${PORT}
+      LOAD_MOCK_DATA: ${LOAD_MOCK_DATA}
+      LOG_LEVEL: 3
+      POSTGRES_DOMAIN: ${POSTGRES_DOMAIN}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - frontend
     depends_on:
@@ -14,14 +21,44 @@ services:
   postgres:
     image: surface74/postgres
     container_name: postgres_container
+    command:
+      - 'postgres'
+      - '--logging_collector=true'
+      - '--log_destination=syslog'
+      - '--log_directory=/usr/app/postgres-data/pg_log'
+      - '--log_rotation_age=60'
     restart: unless-stopped
-    # ports:
-    #   - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
+    env_file: .env
+    ports:
+      - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATA: '/usr/app/postgres-data/'
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'pg_isready',
+          '-U',
+          '${POSTGRES_USER}',
+          '-d',
+          '${POSTGRES_DB}',
+          '-h',
+          'database',
+          '-p',
+          '${POSTGRES_PORT}',
+        ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
     volumes:
       - ./postgres-data:/usr/app/postgres-data/
     networks:

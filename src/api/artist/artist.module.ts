@@ -1,9 +1,9 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { ArtistController } from './artist.controller';
-import { FavoritesModule } from 'src/favorites/favorites.module';
-import { AlbumModule } from 'src/album/album.module';
-import { TrackModule } from 'src/track/track.module';
+import { FavoritesModule } from 'src/api/favorites/favorites.module';
+import { AlbumModule } from 'src/api/album/album.module';
+import { TrackModule } from 'src/api/track/track.module';
 import { DataModule } from 'src/database/data.module';
 
 @Module({

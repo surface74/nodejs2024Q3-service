@@ -11,11 +11,13 @@ import {
   ParseUUIDPipe,
   ClassSerializerInterceptor,
   UseInterceptors,
+  Req,
+  Inject,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 import {
   ApiBadRequestResponse,
@@ -27,11 +29,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserResponse } from './entities/user-responce.entity';
+import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    @Inject(CustomLogger)
+    private customLogger: CustomLogger,
+  ) {
+    this.customLogger.setContext(UserController.name);
+  }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post()
@@ -39,18 +48,34 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Not contains required fields' })
   async create(
     @Body() createUserDto: CreateUserDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
     res.status(HttpStatus.CREATED);
 
-    return await this.userService.create(createUserDto);
+    this.customLogger.logRequest(req);
+
+    const result = await this.userService.create(createUserDto);
+
+    this.customLogger.logResponse(res);
+
+    return result;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOkResponse({ description: 'OK', type: [UserResponse] })
-  async findAll() {
-    return await this.userService.findAll();
+  async findAll(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    this.customLogger.logRequest(req);
+
+    const result = await this.userService.findAll();
+
+    this.customLogger.logResponse(res);
+
+    return result;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -58,8 +83,18 @@ export class UserController {
   @ApiOkResponse({ description: 'OK', type: UserResponse })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    return await this.userService.findOne(id);
+  async findOne(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    this.customLogger.logRequest(req);
+
+    const result = await this.userService.findOne(id);
+
+    this.customLogger.logResponse(res);
+
+    return result;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -69,10 +104,18 @@ export class UserController {
   @ApiForbiddenResponse({ description: 'Invalid password' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async update(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
-    return await this.userService.updatePassword(id, updatePasswordDto);
+    this.customLogger.logRequest(req);
+
+    const result = await this.userService.updatePassword(id, updatePasswordDto);
+
+    this.customLogger.logResponse(res);
+
+    return result;
   }
 
   @Delete(':id')
@@ -80,12 +123,17 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async remove(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    await this.userService.remove(id);
+    this.customLogger.logRequest(req);
 
     res.status(HttpStatus.NO_CONTENT);
+    await this.userService.remove(id);
+
+    this.customLogger.logResponse(res);
+
     return '';
   }
 }
