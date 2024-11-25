@@ -70,11 +70,14 @@ export class AuthController {
   ) {
     this.customLogger.logRequest(req);
 
-    const result: AuthTokensDto = await this.authService.login(createUserDto);
+    const tokens: AuthTokensDto = await this.authService.login(createUserDto);
+
+    res.cookie('access-token', tokens.access_token);
+    res.cookie('refresh-token', tokens.refresh_token);
 
     this.customLogger.logResponse(res);
 
-    return result;
+    return tokens;
   }
 
   @Post('refresh')

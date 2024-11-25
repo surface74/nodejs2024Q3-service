@@ -13,6 +13,7 @@ import {
   UseInterceptors,
   Req,
   Inject,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,6 +22,7 @@ import { Request, Response } from 'express';
 
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -32,7 +34,9 @@ import {
 
 import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 import { User } from './entities/user.entity';
+import { AuthGuard } from '../auth/auth.guard';
 
+@ApiBearerAuth()
 @ApiTags('User')
 @Controller('user')
 export class UserController {
@@ -66,6 +70,7 @@ export class UserController {
     return result;
   }
 
+  @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOkResponse({ description: 'OK', type: [OmitType(User, ['password'])] })

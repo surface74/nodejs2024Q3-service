@@ -15,6 +15,7 @@ import { Request, Response } from 'express';
 
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -26,6 +27,7 @@ import { FavoritesResponse } from './entities/favorites-response.entity';
 import { Messages } from './enums/messages.enum';
 import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 
+@ApiBearerAuth()
 @ApiTags('Favorites')
 @Controller('favs')
 export class FavoritesController {

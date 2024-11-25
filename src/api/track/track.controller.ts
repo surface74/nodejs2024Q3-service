@@ -19,6 +19,7 @@ import { Request, Response } from 'express';
 
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -28,6 +29,7 @@ import {
 import { Track } from './entities/track.entity';
 import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 
+@ApiBearerAuth()
 @ApiTags('Track')
 @Controller('track')
 export class TrackController {

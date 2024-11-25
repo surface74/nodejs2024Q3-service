@@ -20,6 +20,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Home Library Service')
     .setDescription('The Home Library Service description')
+    .addBearerAuth()
     .setVersion('1.0')
     .build();
 

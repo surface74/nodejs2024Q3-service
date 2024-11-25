@@ -19,6 +19,7 @@ import { Request, Response } from 'express';
 
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -28,6 +29,7 @@ import {
 import { Album } from './entities/album.entity';
 import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 
+@ApiBearerAuth()
 @ApiTags('Album')
 @Controller('album')
 export class AlbumController {
