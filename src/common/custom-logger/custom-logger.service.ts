@@ -37,7 +37,14 @@ export class CustomLogger extends ConsoleLogger {
   /**
    * Write a 'fatal' level log.
    */
-  // fatal(message: any, ...optionalParams: any[]) {}
+  fatal(message: any, ...optionalParams: any[]) {
+    super.fatal(message, optionalParams);
+
+    if (LoggingLevel.fatal <= +process.env.LOG_LEVEL) {
+      this.register.toLogFile([...optionalParams, message].join(' '));
+      this.register.toLogErrorFile([...optionalParams, message].join(' '));
+    }
+  }
 
   /**
    * Write an 'error' level log.

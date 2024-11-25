@@ -15,6 +15,7 @@ async function bootstrap() {
   });
 
   app.useLogger(new CustomLogger(process.env.LOG_PATH));
+  app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
     .setTitle('Home Library Service')
@@ -28,11 +29,25 @@ async function bootstrap() {
     SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup('doc', app, documentFactory);
 
-  app.useGlobalPipes(new ValidationPipe());
-
   const port = process.env.PORT || '4000';
   await app.listen(port);
 
   console.log(`Server started on port ${port}`);
 }
 bootstrap();
+
+process.on('uncaughtException', (error) => {
+  const message = `${error.message} ${error.stack}`;
+
+  const logger = new CustomLogger();
+  logger.fatal(message, 'uncaughtException');
+
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  const message = `Unhandled rejection at: ${promise}, reason: ${reason}`;
+
+  const logger = new CustomLogger();
+  logger.error(message, 'unhandledRejection');
+});
