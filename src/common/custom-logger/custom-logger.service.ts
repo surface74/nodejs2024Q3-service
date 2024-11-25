@@ -34,9 +34,6 @@ export class CustomLogger extends ConsoleLogger {
     this.log(res.statusCode, this.context);
   }
 
-  /**
-   * Write a 'fatal' level log.
-   */
   fatal(message: any, ...optionalParams: any[]) {
     super.fatal(message, optionalParams);
 
@@ -46,9 +43,6 @@ export class CustomLogger extends ConsoleLogger {
     }
   }
 
-  /**
-   * Write an 'error' level log.
-   */
   error(message: any, ...optionalParams: any[]) {
     super.error(message, optionalParams);
 
@@ -62,18 +56,27 @@ export class CustomLogger extends ConsoleLogger {
     this.error(JSON.stringify(httpError), this.context);
   }
 
-  /**
-   * Write a 'warn' level log.
-   */
-  // warn(message: any, ...optionalParams: any[]) {}
+  warn(message: any, ...optionalParams: any[]) {
+    super.error(message, optionalParams);
 
-  /**
-   * Write a 'debug' level log.
-   */
-  // debug?(message: any, ...optionalParams: any[]) {}
+    if (LoggingLevel.warn <= +process.env.LOG_LEVEL) {
+      this.register.toLogFile([...optionalParams, message].join(' '));
+    }
+  }
 
-  /**
-   * Write a 'verbose' level log.
-   */
-  // verbose?(message: any, ...optionalParams: any[]) {}
+  debug(message: any, ...optionalParams: any[]) {
+    super.debug(message, optionalParams);
+
+    if (LoggingLevel.debug <= +process.env.LOG_LEVEL) {
+      this.register.toLogFile([...optionalParams, message].join(' '));
+    }
+  }
+
+  verbose(message: any, ...optionalParams: any[]) {
+    super.verbose(message, optionalParams);
+
+    if (LoggingLevel.verbose <= +process.env.LOG_LEVEL) {
+      this.register.toLogFile([...optionalParams, message].join(' '));
+    }
+  }
 }
