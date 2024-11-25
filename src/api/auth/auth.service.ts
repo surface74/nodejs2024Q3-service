@@ -45,7 +45,7 @@ export class AuthService {
       throw new ForbiddenException();
     }
 
-    const payload = { sub: user.id, username: user.login };
+    const payload = { userId: user.id, login: user.login };
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_SECRET_KEY,
@@ -74,7 +74,7 @@ export class AuthService {
         secret: process.env.JWT_SECRET_KEY,
       });
 
-      const newPayload = { sub: payload.sub, username: payload.username };
+      const newPayload = { userId: payload.userId, login: payload.login };
 
       const newAccessToken = await this.jwtService.signAsync(newPayload, {
         secret: process.env.JWT_SECRET_KEY,
