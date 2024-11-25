@@ -22,6 +22,7 @@ import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 import { Request, Response } from 'express';
 import { AuthMessages } from './enums/auth-messages.enum';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { AuthTokensDto } from './dto/auth-tokens.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -56,7 +57,10 @@ export class AuthController {
   }
 
   @Post('login')
-  @ApiOkResponse({ description: AuthMessages.LoginSuccessful })
+  @ApiOkResponse({
+    description: AuthMessages.LoginSuccessful,
+    type: AuthTokensDto,
+  })
   @ApiForbiddenResponse({ description: AuthMessages.LoginFailedByUser })
   @ApiBadRequestResponse({ description: AuthMessages.LoginFailedByData })
   async login(
@@ -66,11 +70,11 @@ export class AuthController {
   ) {
     this.customLogger.logRequest(req);
 
-    await this.authService.login(createUserDto);
+    const result: AuthTokensDto = await this.authService.login(createUserDto);
 
     this.customLogger.logResponse(res);
 
-    return AuthMessages.LoginSuccessful;
+    return result;
   }
 
   @Post('refresh')

@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto } from '../user/dto/create-user.dto';
@@ -6,10 +7,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from '../user/entities/user.entity';
 import { DataService } from 'src/database/data.service';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { AuthTokensDto } from './dto/auth-tokens.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private jwtService: JwtService,
+  ) {}
 
   readonly salt = process.env.CRYPT_SALT;
 
@@ -36,7 +41,21 @@ export class AuthService {
       throw new ForbiddenException();
     }
 
-    //TODO: return token
+    const payload = { sub: user.id, username: user.login };
+
+    const access_token = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_SECRET_KEY,
+      expiresIn: process.env.TOKEN_EXPIRE_TIME,
+    });
+
+    const refresh_token = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_SECRET_REFRESH_KEY,
+      expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME,
+    });
+
+    const tokens: AuthTokensDto = { access_token, refresh_token };
+
+    return tokens;
   }
 
   async refresh(token: UpdateAuthDto) {

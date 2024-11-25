@@ -4,7 +4,9 @@ EXPOSE 4000
 
 WORKDIR /usr/app/server
 
-COPY node_modules node_modules
+COPY package.json package.json
+
+RUN npm i --omit=dev --force && npm prune --omit=dev
 
 COPY dist dist
 

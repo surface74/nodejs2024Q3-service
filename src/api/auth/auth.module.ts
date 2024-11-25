@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { DataModule } from 'src/database/data.module';
 import { CustomLoggerModule } from 'src/common/custom-logger/custom-logger.module';
 
 @Module({
-  imports: [CustomLoggerModule, DataModule],
+  imports: [
+    CustomLoggerModule,
+    DataModule,
+    JwtModule.register({ global: true }),
+  ],
   controllers: [AuthController],
   providers: [AuthService],
   exports: [AuthService],
