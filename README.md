@@ -15,21 +15,25 @@ git clone {repository URL}
 ## Installing NPM modules
 
 ```
+git checkout develop-3
 npm install
 ```
 
 ## Running application
 
 ```
-Start Docker Engine - start Docker Desktop
-start database: `npm start:db`
+Start Docker Engine (start Docker Desktop)
+start database & app: `npm run start:docker`
+
+To start local app:
 npm start
+
+Config can be set through `.env` for docker-contained app or `.env.local` for local instance.
 ```
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 To get API-scheme, you can go to http://localhost:4000/doc-yaml, or http://localhost:4000/doc-json
-Port to start can be set into `.env`
 
 ## Testing
 
