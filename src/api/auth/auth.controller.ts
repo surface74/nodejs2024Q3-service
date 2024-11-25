@@ -23,6 +23,7 @@ import { Request, Response } from 'express';
 import { AuthMessages } from './enums/auth-messages.enum';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { AuthTokensDto } from './dto/auth-tokens.dto';
+import { Public } from './public.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -35,27 +36,29 @@ export class AuthController {
     this.customLogger.setContext(AuthController.name);
   }
 
+  @Public()
   @Post('signup')
   @ApiCreatedResponse({
     description: AuthMessages.UserCreated,
     type: String,
   })
   @ApiBadRequestResponse({ description: 'Not contains required fields' })
-  async signUp(
+  async signup(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() createUserDto: CreateUserDto,
   ) {
     this.customLogger.logRequest(req);
 
-    await this.authService.signUp(createUserDto);
+    const result = await this.authService.signUp(createUserDto);
     res.status(HttpStatus.CREATED);
 
     this.customLogger.logResponse(res);
 
-    return AuthMessages.UserCreated;
+    return result;
   }
 
+  @Public()
   @Post('login')
   @ApiOkResponse({
     description: AuthMessages.LoginSuccessful,
@@ -72,14 +75,15 @@ export class AuthController {
 
     const tokens: AuthTokensDto = await this.authService.login(createUserDto);
 
-    res.cookie('access-token', tokens.access_token);
-    res.cookie('refresh-token', tokens.refresh_token);
+    res.cookie('access-token', tokens.accessToken);
+    res.cookie('refresh-token', tokens.refreshToken);
 
     this.customLogger.logResponse(res);
 
     return tokens;
   }
 
+  @Public()
   @Post('refresh')
   @ApiOkResponse({ description: AuthMessages.RefreshSuccessful })
   @ApiUnauthorizedResponse({ description: AuthMessages.TokenExpired })

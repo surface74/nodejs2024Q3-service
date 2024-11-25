@@ -6,9 +6,9 @@ import { Entity } from 'typeorm';
 export class AuthTokensDto {
   @ApiProperty({ description: 'Access token' })
   @IsString()
-  access_token: string;
+  accessToken: string;
 
   @ApiProperty({ description: 'Refresh token' })
   @IsString()
-  refresh_token: string;
+  refreshToken: string;
 }

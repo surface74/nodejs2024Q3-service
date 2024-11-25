@@ -4,6 +4,8 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { DataModule } from 'src/database/data.module';
 import { CustomLoggerModule } from 'src/common/custom-logger/custom-logger.module';
+import { AuthGuard } from './auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -12,7 +14,13 @@ import { CustomLoggerModule } from 'src/common/custom-logger/custom-logger.modul
     JwtModule.register({ global: true }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}
