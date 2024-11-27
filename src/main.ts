@@ -35,21 +35,7 @@ async function bootstrap() {
   const port = process.env.PORT || '4000';
   await app.listen(port);
 
-  const customLogger = app.get(CustomLogger);
-
-  process.on('uncaughtException', (error) => {
-    const message = `${error.message} ${error.stack}`;
-    customLogger.fatal(message, 'uncaughtException');
-
-    process.exit(1);
-  });
-
-  process.on('unhandledRejection', (reason, promise) => {
-    const message = `Unhandled rejection at: ${promise}, reason: ${reason}`;
-    customLogger.error(message, 'unhandledRejection');
-  });
-
-  customLogger.log(`Server started on port ${port}`);
+  app.get(CustomLogger).log(`Server started on port ${port}`);
 }
 
 bootstrap();

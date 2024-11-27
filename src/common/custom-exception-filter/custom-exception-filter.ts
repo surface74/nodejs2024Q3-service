@@ -5,13 +5,14 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  OnModuleInit,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ICustomHttpError } from './interfaces/custom-http-error.interface';
 import { CustomLogger } from '../custom-logger/custom-logger.service';
 
 @Catch()
-export class CustomExceptionFilter implements ExceptionFilter {
+export class CustomExceptionFilter implements ExceptionFilter, OnModuleInit {
   constructor(
     private readonly httpAdapterHost: HttpAdapterHost,
     @Inject(CustomLogger)
@@ -39,5 +40,19 @@ export class CustomExceptionFilter implements ExceptionFilter {
     this.customLogger.logHttpError(responseBody);
 
     httpAdapter.reply(response, responseBody, httpStatus);
+  }
+
+  onModuleInit() {
+    process.on('uncaughtException', (error) => {
+      const message = `${error.message} ${error.stack}`;
+      this.customLogger.fatal(message, 'uncaughtException');
+
+      process.exit(1);
+    });
+
+    process.on('unhandledRejection', (reason, promise) => {
+      const message = `Unhandled rejection at: ${promise}, reason: ${reason}`;
+      this.customLogger.error(message, 'unhandledRejection');
+    });
   }
 }
