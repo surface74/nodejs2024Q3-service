@@ -7,6 +7,7 @@ import {
   SwaggerModule,
 } from '@nestjs/swagger';
 import { CustomLogger } from './common/custom-logger/custom-logger.service';
+import { LoggingInterceptor } from './common/logging-interceptor/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -16,6 +17,7 @@ async function bootstrap() {
 
   app.useLogger(new CustomLogger(process.env.LOG_PATH));
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new LoggingInterceptor(new CustomLogger()));
 
   const config = new DocumentBuilder()
     .setTitle('Home Library Service')
@@ -33,22 +35,21 @@ async function bootstrap() {
   const port = process.env.PORT || '4000';
   await app.listen(port);
 
-  console.log(`Server started on port ${port}`);
+  const customLogger = app.get(CustomLogger);
+
+  process.on('uncaughtException', (error) => {
+    const message = `${error.message} ${error.stack}`;
+    customLogger.fatal(message, 'uncaughtException');
+
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    const message = `Unhandled rejection at: ${promise}, reason: ${reason}`;
+    customLogger.error(message, 'unhandledRejection');
+  });
+
+  customLogger.log(`Server started on port ${port}`);
 }
+
 bootstrap();
-
-process.on('uncaughtException', (error) => {
-  const message = `${error.message} ${error.stack}`;
-
-  const logger = new CustomLogger();
-  logger.fatal(message, 'uncaughtException');
-
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  const message = `Unhandled rejection at: ${promise}, reason: ${reason}`;
-
-  const logger = new CustomLogger();
-  logger.error(message, 'unhandledRejection');
-});

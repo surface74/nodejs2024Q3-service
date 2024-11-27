@@ -16,7 +16,7 @@ export class CustomLogger extends ConsoleLogger {
     }
   }
 
-  logRequest(req: Request) {
+  logRequest(req: Request, contextName?: string) {
     const { method, url, query, body } = req;
     const message = [
       method,
@@ -27,11 +27,11 @@ export class CustomLogger extends ConsoleLogger {
       JSON.stringify(body),
     ].join(' ');
 
-    this.log(message, this.context);
+    this.log(message, contextName || this.context);
   }
 
-  logResponse(res: Response) {
-    this.log(res.statusCode, this.context);
+  logResponse(res: Response, contextName?: string) {
+    this.log(res.statusCode, contextName || this.context);
   }
 
   fatal(message: any, ...optionalParams: any[]) {
