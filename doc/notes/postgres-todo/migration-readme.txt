@@ -1,0 +1,1 @@
+https://typeorm.io/migrations#creating-a-new-migration

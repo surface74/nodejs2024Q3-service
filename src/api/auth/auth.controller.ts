@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Res, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  HttpStatus,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 
@@ -29,6 +37,7 @@ export class AuthController {
     type: String,
   })
   @ApiBadRequestResponse({ description: 'Not contains required fields' })
+  @UseInterceptors(ClassSerializerInterceptor)
   async signup(
     @Res({ passthrough: true }) res: Response,
     @Body() createUserDto: CreateUserDto,
