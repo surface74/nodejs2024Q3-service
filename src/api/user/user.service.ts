@@ -1,6 +1,5 @@
 import {
   ForbiddenException,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,17 +8,10 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import { DataService } from 'src/database/data.service';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
-import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private dataService: DataService,
-    @Inject(CustomLogger)
-    private customLogging: CustomLogger,
-  ) {
-    this.customLogging.setContext(UserService.name);
-  }
+  constructor(private dataService: DataService) {}
 
   async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;

@@ -11,13 +11,11 @@ import {
   ParseUUIDPipe,
   ClassSerializerInterceptor,
   UseInterceptors,
-  Req,
-  Inject,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 
 import {
   ApiBadRequestResponse,
@@ -31,20 +29,13 @@ import {
   OmitType,
 } from '@nestjs/swagger';
 
-import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
 import { User } from './entities/user.entity';
 
 @ApiBearerAuth()
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    @Inject(CustomLogger)
-    private customLogger: CustomLogger,
-  ) {
-    this.customLogger.setContext(UserController.name);
-  }
+  constructor(private readonly userService: UserService) {}
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post()
@@ -54,16 +45,11 @@ export class UserController {
   })
   @ApiBadRequestResponse({ description: 'Not contains required fields' })
   async create(
-    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() createUserDto: CreateUserDto,
   ) {
-    this.customLogger.logRequest(req);
-
     const result = await this.userService.create(createUserDto);
     res.status(HttpStatus.CREATED);
-
-    this.customLogger.logResponse(res);
 
     return result;
   }
@@ -71,17 +57,8 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOkResponse({ description: 'OK', type: [OmitType(User, ['password'])] })
-  async findAll(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    this.customLogger.logRequest(req);
-
-    const result = await this.userService.findAll();
-
-    this.customLogger.logResponse(res);
-
-    return result;
+  async findAll() {
+    return await this.userService.findAll();
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -89,18 +66,8 @@ export class UserController {
   @ApiOkResponse({ description: 'OK', type: OmitType(User, ['password']) })
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async findOne(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ) {
-    this.customLogger.logRequest(req);
-
-    const result = await this.userService.findOne(id);
-
-    this.customLogger.logResponse(res);
-
-    return result;
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return await this.userService.findOne(id);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -110,18 +77,10 @@ export class UserController {
   @ApiForbiddenResponse({ description: 'Invalid password' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async update(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
-    this.customLogger.logRequest(req);
-
-    const result = await this.userService.updatePassword(id, updatePasswordDto);
-
-    this.customLogger.logResponse(res);
-
-    return result;
+    return await this.userService.updatePassword(id, updatePasswordDto);
   }
 
   @Delete(':id')
@@ -129,16 +88,11 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Invalid UUID' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async remove(
-    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    this.customLogger.logRequest(req);
-
     await this.userService.remove(id);
     res.status(HttpStatus.NO_CONTENT);
-
-    this.customLogger.logResponse(res);
 
     return '';
   }

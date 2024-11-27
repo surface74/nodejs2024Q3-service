@@ -3,16 +3,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { DataModule } from 'src/database/data.module';
-import { CustomLoggerModule } from 'src/common/custom-logger/custom-logger.module';
 import { AuthGuard } from './auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 
 @Module({
-  imports: [
-    CustomLoggerModule,
-    DataModule,
-    JwtModule.register({ global: true }),
-  ],
+  imports: [DataModule, JwtModule.register({ global: true })],
   controllers: [AuthController],
   providers: [
     AuthService,

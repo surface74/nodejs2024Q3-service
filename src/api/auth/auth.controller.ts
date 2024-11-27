@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Req,
-  Res,
-  HttpStatus,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 
@@ -18,8 +10,8 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { CustomLogger } from 'src/common/custom-logger/custom-logger.service';
-import { Request, Response } from 'express';
+
+import { Response } from 'express';
 import { AuthMessages } from './enums/auth-messages.enum';
 import { RefreshAuthDto } from './dto/refresh-auth.dto';
 import { AuthTokensDto } from './dto/auth-tokens.dto';
@@ -28,13 +20,7 @@ import { Public } from './public.decorator';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    @Inject(CustomLogger)
-    private customLogger: CustomLogger,
-  ) {
-    this.customLogger.setContext(AuthController.name);
-  }
+  constructor(private readonly authService: AuthService) {}
 
   @Public()
   @Post('signup')
@@ -44,16 +30,11 @@ export class AuthController {
   })
   @ApiBadRequestResponse({ description: 'Not contains required fields' })
   async signup(
-    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() createUserDto: CreateUserDto,
   ) {
-    this.customLogger.logRequest(req);
-
     const result = await this.authService.signUp(createUserDto);
     res.status(HttpStatus.CREATED);
-
-    this.customLogger.logResponse(res);
 
     return result;
   }
@@ -66,21 +47,8 @@ export class AuthController {
   })
   @ApiForbiddenResponse({ description: AuthMessages.LoginFailedByUser })
   @ApiBadRequestResponse({ description: AuthMessages.LoginFailedByData })
-  async login(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-    @Body() createUserDto: CreateUserDto,
-  ) {
-    this.customLogger.logRequest(req);
-
-    const tokens: AuthTokensDto = await this.authService.login(createUserDto);
-
-    res.cookie('access-token', tokens.accessToken);
-    res.cookie('refresh-token', tokens.refreshToken);
-
-    this.customLogger.logResponse(res);
-
-    return tokens;
+  async login(@Body() createUserDto: CreateUserDto) {
+    return await this.authService.login(createUserDto);
   }
 
   @Public()
@@ -92,16 +60,11 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: AuthMessages.TokenExpired })
   @ApiBadRequestResponse({ description: AuthMessages.NoTokenPassed })
   async refresh(
-    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() token: RefreshAuthDto,
   ) {
-    this.customLogger.logRequest(req);
-
     const tokens: AuthTokensDto = await this.authService.refresh(token);
     res.status(HttpStatus.OK);
-
-    this.customLogger.logResponse(res);
 
     return tokens;
   }
